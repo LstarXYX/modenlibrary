@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="modenlibrary.mapper.BookMapper">
+  <resultMap id="BaseResultMap" type="modenlibrary.entity.Book">
+    <!--@mbg.generated-->
+    <!--@Table book-->
+    <id column="isbn" jdbcType="VARCHAR" property="isbn" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="author" jdbcType="VARCHAR" property="author" />
+    <result column="publish_date" jdbcType="TIMESTAMP" property="publishDate" />
+    <result column="category_id" jdbcType="INTEGER" property="categoryId" />
+    <result column="price" jdbcType="DECIMAL" property="price" />
+    <result column="description" jdbcType="LONGVARCHAR" property="description" />
+    <result column="book_num" jdbcType="INTEGER" property="bookNum" />
+    <result column="img_path" jdbcType="VARCHAR" property="imgPath" />
+  </resultMap>
+  <resultMap id="bookInfoResultMap" type="modenlibrary.entity.Vo.BookInfo">
+    <id column="isbn" jdbcType="VARCHAR" property="isbn" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="author" jdbcType="VARCHAR" property="author" />
+    <result column="publish_date" jdbcType="TIMESTAMP" property="publishDate" />
+    <result column="category_id" jdbcType="INTEGER" property="categoryId" />
+    <result column="price" jdbcType="DECIMAL" property="price" />
+    <result column="description" jdbcType="LONGVARCHAR" property="description" />
+    <result column="book_num" jdbcType="INTEGER" property="bookNum" />
+    <result column="img_path" jdbcType="VARCHAR" property="imgPath" />
+<!--    <association property="cname" select="modenlibrary.mapper.CategoryMapper.findById" column="categoryId"/>-->
+    <result column="c_name" property="cname"/>
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    isbn, title, author, publish_date, category_id, price, description, book_num, img_path
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    <!--@mbg.generated-->
+    select 
+    <include refid="Base_Column_List" />
+    from book
+    where isbn = #{isbn,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    <!--@mbg.generated-->
+    delete from book
+    where isbn = #{isbn,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="modenlibrary.entity.Book">
+    <!--@mbg.generated-->
+    insert into book (isbn, title, author, 
+      publish_date, category_id, price, 
+      description, book_num, img_path
+      )
+    values (#{isbn,jdbcType=VARCHAR}, #{title,jdbcType=VARCHAR}, #{author,jdbcType=VARCHAR}, 
+      #{publishDate,jdbcType=TIMESTAMP}, #{categoryId,jdbcType=INTEGER}, #{price,jdbcType=DECIMAL}, 
+      #{description,jdbcType=LONGVARCHAR}, #{bookNum,jdbcType=INTEGER}, #{imgPath,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="modenlibrary.entity.Book">
+    <!--@mbg.generated-->
+    insert into book
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="isbn != null">
+        isbn,
+      </if>
+      <if test="title != null">
+        title,
+      </if>
+      <if test="author != null">
+        author,
+      </if>
+      <if test="publishDate != null">
+        publish_date,
+      </if>
+      <if test="categoryId != null">
+        category_id,
+      </if>
+      <if test="price != null">
+        price,
+      </if>
+      <if test="description != null">
+        description,
+      </if>
+      <if test="bookNum != null">
+        book_num,
+      </if>
+      <if test="imgPath != null">
+        img_path,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="isbn != null">
+        #{isbn,jdbcType=VARCHAR},
+      </if>
+      <if test="title != null">
+        #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="author != null">
+        #{author,jdbcType=VARCHAR},
+      </if>
+      <if test="publishDate != null">
+        #{publishDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="categoryId != null">
+        #{categoryId,jdbcType=INTEGER},
+      </if>
+      <if test="price != null">
+        #{price,jdbcType=DECIMAL},
+      </if>
+      <if test="description != null">
+        #{description,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="bookNum != null">
+        #{bookNum,jdbcType=INTEGER},
+      </if>
+      <if test="imgPath != null">
+        #{imgPath,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="modenlibrary.entity.Book">
+    <!--@mbg.generated-->
+    update book
+    <set>
+      <if test="title != null">
+        title = #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="author != null">
+        author = #{author,jdbcType=VARCHAR},
+      </if>
+      <if test="publishDate != null">
+        publish_date = #{publishDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="categoryId != null">
+        category_id = #{categoryId,jdbcType=INTEGER},
+      </if>
+      <if test="price != null">
+        price = #{price,jdbcType=DECIMAL},
+      </if>
+      <if test="description != null">
+        description = #{description,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="bookNum != null">
+        book_num = #{bookNum,jdbcType=INTEGER},
+      </if>
+      <if test="imgPath != null">
+        img_path = #{imgPath,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where isbn = #{isbn,jdbcType=VARCHAR}
+  </update>
+
+  <update id="updateByPrimaryKey" parameterType="modenlibrary.entity.Book">
+    <!--@mbg.generated-->
+    update book
+    set title = #{title,jdbcType=VARCHAR},
+      author = #{author,jdbcType=VARCHAR},
+      publish_date = #{publishDate,jdbcType=TIMESTAMP},
+      category_id = #{categoryId,jdbcType=INTEGER},
+      price = #{price,jdbcType=DECIMAL},
+      description = #{description,jdbcType=LONGVARCHAR},
+      book_num = #{bookNum,jdbcType=INTEGER},
+      img_path = #{imgPath,jdbcType=VARCHAR}
+    where isbn = #{isbn,jdbcType=VARCHAR}
+  </update>
+
+  <select id="queryAll" resultMap="bookInfoResultMap">
+    select <include refid="Base_Column_List"/>,c_name
+    from book left join category c on book.category_id = c.id
+    <where>
+      <if test="isbn != null and isbn != ''">
+        isbn=#{isbn,jdbcType=VARCHAR}
+      </if>
+      <if test="title != null and title != ''">
+        and title=#{title,jdbcType=VARCHAR}
+      </if>
+      <if test="author != null and author != ''">
+        and author=#{author,jdbcType=VARCHAR}
+      </if>
+      <if test="description != null and description != ''">
+        and description like concat('%',#{description,jdbcType=VARCHAR},'%')
+      </if>
+    </where>
+  </select>
+
+</mapper>

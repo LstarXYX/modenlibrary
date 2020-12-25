@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="modenlibrary.mapper.UserMapper">
+  <resultMap id="BaseResultMap" type="modenlibrary.entity.User">
+    <!--@mbg.generated-->
+    <!--@Table `user`-->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="username" jdbcType="VARCHAR" property="username" />
+    <result column="password" jdbcType="VARCHAR" property="password" />
+    <result column="gender" jdbcType="TINYINT" property="gender" />
+    <result column="isblack" jdbcType="TINYINT" property="isblack" />
+    <result column="allow_lend" jdbcType="INTEGER" property="allowLend" />
+    <result column="isdel" jdbcType="TINYINT" property="isdel" />
+    <result column="register_date" jdbcType="TIMESTAMP" property="registerDate" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    id, username, `password`, gender, isblack, allow_lend, isdel, register_date
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    <!--@mbg.generated-->
+    select 
+    <include refid="Base_Column_List" />
+    from `user`
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    <!--@mbg.generated-->
+    delete from `user`
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="modenlibrary.entity.User" useGeneratedKeys="true">
+    <!--@mbg.generated-->
+    insert into `user` (username, `password`, gender,  register_date)
+    values (#{username,jdbcType=VARCHAR},md5(#{password,jdbcType=VARCHAR}), #{gender,jdbcType=TINYINT},
+      #{registerDate,jdbcType=TIMESTAMP})
+  </insert>
+
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="modenlibrary.entity.User" useGeneratedKeys="true">
+    <!--@mbg.generated-->
+    insert into `user`
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="username != null">
+        username,
+      </if>
+      <if test="password != null">
+        `password`,
+      </if>
+      <if test="gender != null">
+        gender,
+      </if>
+      <if test="isblack != null">
+        isblack,
+      </if>
+      <if test="allowLend != null">
+        allow_lend,
+      </if>
+      <if test="isdel != null">
+        isdel,
+      </if>
+      <if test="registerDate != null">
+        register_date,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="username != null">
+        #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null">
+        #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="gender != null">
+        #{gender,jdbcType=TINYINT},
+      </if>
+      <if test="isblack != null">
+        #{isblack,jdbcType=TINYINT},
+      </if>
+      <if test="allowLend != null">
+        #{allowLend,jdbcType=INTEGER},
+      </if>
+      <if test="isdel != null">
+        #{isdel,jdbcType=TINYINT},
+      </if>
+      <if test="registerDate != null">
+        #{registerDate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+
+  <update id="updateByPrimaryKeySelective" parameterType="modenlibrary.entity.User">
+    <!--@mbg.generated-->
+    update `user`
+    <set>
+      <if test="username != null">
+        username = #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null">
+        `password` = #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="gender != null">
+        gender = #{gender,jdbcType=TINYINT},
+      </if>
+      <if test="isblack != null">
+        isblack = #{isblack,jdbcType=TINYINT},
+      </if>
+      <if test="allowLend != null">
+        allow_lend = #{allowLend,jdbcType=INTEGER},
+      </if>
+      <if test="isdel != null">
+        isdel = #{isdel,jdbcType=TINYINT},
+      </if>
+      <if test="registerDate != null">
+        register_date = #{registerDate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <update id="updateByPrimaryKey" parameterType="modenlibrary.entity.User">
+    <!--@mbg.generated-->
+    update `user`
+    set username = #{username,jdbcType=VARCHAR},
+      `password` = #{password,jdbcType=VARCHAR},
+      gender = #{gender,jdbcType=TINYINT},
+      isblack = #{isblack,jdbcType=TINYINT},
+      allow_lend = #{allowLend,jdbcType=INTEGER},
+      isdel = #{isdel,jdbcType=TINYINT},
+      register_date = #{registerDate,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <select id="login" resultMap="BaseResultMap">
+    select id,username,password,gender,isblack,allow_lend,isdel,register_date
+    from user
+    where id=#{id,jdbcType=INTEGER}
+    and password=md5(#{password,jdbcType=VARCHAR})
+  </select>
+
+  <select id="queryUser" parameterType="modenlibrary.entity.User" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List"/>
+    from user
+    <where>
+      <if test="id != null">
+        id=#{id,jdbcType=INTEGER}
+      </if>
+      <if test="username != null">
+        and username=#{username,jdbcType=VARCHAR}
+      </if>
+      <if test="gender != null">
+        and gender=#{gender,jdbcType=TINYINT}
+      </if>
+      <if test="allowLend != null">
+        and allow_lend=#{allowLend,jdbcType=INTEGER}
+      </if>
+      <if test="isblack != null">
+        and isblack=#{isblack,jdbcType=TINYINT}
+      </if>
+      <if test="registerDate != null">
+        and register_date=#{registerDate,jdbcType=TIMESTAMP}
+      </if>
+    </where>
+  </select>
+
+</mapper>

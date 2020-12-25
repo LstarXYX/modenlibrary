@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="modenlibrary.mapper.PermissionMapper">
+  <resultMap id="BaseResultMap" type="modenlibrary.entity.Permission">
+    <!--@mbg.generated-->
+    <!--@Table permission-->
+    <id column="permission_id" jdbcType="INTEGER" property="permissionId" />
+    <result column="permission_name" jdbcType="VARCHAR" property="permissionName" />
+    <result column="permission_desc" jdbcType="VARCHAR" property="permissionDesc" />
+    <result column="permission_url" jdbcType="VARCHAR" property="permissionUrl" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    permission_id, permission_name, permission_desc, permission_url
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    <!--@mbg.generated-->
+    select 
+    <include refid="Base_Column_List" />
+    from permission
+    where permission_id = #{permissionId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    <!--@mbg.generated-->
+    delete from permission
+    where permission_id = #{permissionId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" keyColumn="permission_id" keyProperty="permissionId" parameterType="modenlibrary.entity.Permission" useGeneratedKeys="true">
+    <!--@mbg.generated-->
+    insert into permission (permission_name, permission_desc, permission_url
+      )
+    values (#{permissionName,jdbcType=VARCHAR}, #{permissionDesc,jdbcType=VARCHAR}, #{permissionUrl,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" keyColumn="permission_id" keyProperty="permissionId" parameterType="modenlibrary.entity.Permission" useGeneratedKeys="true">
+    <!--@mbg.generated-->
+    insert into permission
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="permissionName != null">
+        permission_name,
+      </if>
+      <if test="permissionDesc != null">
+        permission_desc,
+      </if>
+      <if test="permissionUrl != null">
+        permission_url,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="permissionName != null">
+        #{permissionName,jdbcType=VARCHAR},
+      </if>
+      <if test="permissionDesc != null">
+        #{permissionDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="permissionUrl != null">
+        #{permissionUrl,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="modenlibrary.entity.Permission">
+    <!--@mbg.generated-->
+    update permission
+    <set>
+      <if test="permissionName != null">
+        permission_name = #{permissionName,jdbcType=VARCHAR},
+      </if>
+      <if test="permissionDesc != null">
+        permission_desc = #{permissionDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="permissionUrl != null">
+        permission_url = #{permissionUrl,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where permission_id = #{permissionId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="modenlibrary.entity.Permission">
+    <!--@mbg.generated-->
+    update permission
+    set permission_name = #{permissionName,jdbcType=VARCHAR},
+      permission_desc = #{permissionDesc,jdbcType=VARCHAR},
+      permission_url = #{permissionUrl,jdbcType=VARCHAR}
+    where permission_id = #{permissionId,jdbcType=INTEGER}
+  </update>
+</mapper>

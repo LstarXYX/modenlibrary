@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="modenlibrary.mapper.BlacklistMapper">
+  <resultMap id="BaseResultMap" type="modenlibrary.entity.Blacklist">
+    <!--@mbg.generated-->
+    <!--@Table blacklist-->
+    <result column="uid" jdbcType="INTEGER" property="uid" />
+    <result column="uname" jdbcType="VARCHAR" property="uname" />
+    <result column="cdate" jdbcType="TIMESTAMP" property="cdate" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    `uid`, uname, cdate
+  </sql>
+  <insert id="insert" parameterType="modenlibrary.entity.Blacklist">
+    <!--@mbg.generated-->
+    insert into blacklist (`uid`, uname, cdate
+      )
+    values (#{uid,jdbcType=INTEGER}, #{uname,jdbcType=VARCHAR}, #{cdate,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="modenlibrary.entity.Blacklist">
+    <!--@mbg.generated-->
+    insert into blacklist
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="uid != null">
+        `uid`,
+      </if>
+      <if test="uname != null">
+        uname,
+      </if>
+      <if test="cdate != null">
+        cdate,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="uid != null">
+        #{uid,jdbcType=INTEGER},
+      </if>
+      <if test="uname != null">
+        #{uname,jdbcType=VARCHAR},
+      </if>
+      <if test="cdate != null">
+        #{cdate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+
+  <delete id="del">
+    delete from blacklist where uid=#{id,jdbcType=INTEGER}
+  </delete>
+
+</mapper>

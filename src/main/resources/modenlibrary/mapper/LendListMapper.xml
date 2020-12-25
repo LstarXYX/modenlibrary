@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="modenlibrary.mapper.LendListMapper">
+  <resultMap id="BaseResultMap" type="modenlibrary.entity.LendList">
+    <!--@mbg.generated-->
+    <!--@Table lend_list-->
+    <result column="isbn" jdbcType="VARCHAR" property="isbn" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="uid" jdbcType="INTEGER" property="uid" />
+    <result column="lend_date" jdbcType="TIMESTAMP" property="lendDate" />
+    <result column="return_date" jdbcType="TIMESTAMP" property="returnDate" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    isbn, title, `uid`, lend_date, return_date, `status`
+  </sql>
+  <insert id="insert" parameterType="modenlibrary.entity.LendList">
+    <!--@mbg.generated-->
+    insert into lend_list (isbn, title, `uid`, 
+      lend_date, return_date, `status`
+      )
+    values (#{isbn,jdbcType=VARCHAR}, #{title,jdbcType=VARCHAR}, #{uid,jdbcType=INTEGER}, 
+      #{lendDate,jdbcType=TIMESTAMP}, #{returnDate,jdbcType=TIMESTAMP}, #{status,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="modenlibrary.entity.LendList">
+    <!--@mbg.generated-->
+    insert into lend_list
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="isbn != null">
+        isbn,
+      </if>
+      <if test="title != null">
+        title,
+      </if>
+      <if test="uid != null">
+        `uid`,
+      </if>
+      <if test="lendDate != null">
+        lend_date,
+      </if>
+      <if test="returnDate != null">
+        return_date,
+      </if>
+      <if test="status != null">
+        `status`,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="isbn != null">
+        #{isbn,jdbcType=VARCHAR},
+      </if>
+      <if test="title != null">
+        #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="uid != null">
+        #{uid,jdbcType=INTEGER},
+      </if>
+      <if test="lendDate != null">
+        #{lendDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="returnDate != null">
+        #{returnDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+
+  <select id="queryLendBook" resultMap="BaseResultMap">
+    select isbn,title,uid,lend_date,return_date,status
+    from lend_list
+    where isbn=#{isbn} and uid=#{uid}
+  </select>
+
+  <update id="updateLendList">
+    update lend_list
+    <set>
+      <if test="returnDate != null">
+        return_date=#{returnDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null and status != ''">
+        status=#{status,jdbcType=VARCHAR},
+      </if>
+        lend_date=#{lendDate,jdbcType=TIMESTAMP},
+    </set>
+    where isbn=#{isbn}
+    and uid=#{uid}
+  </update>
+
+  <select id="queryAll" parameterType="modenlibrary.entity.LendList"  resultMap="BaseResultMap">
+    select <include refid="Base_Column_List"/>
+    from lend_list
+    <where>
+      <if test="isbn != null and isbn != ''">
+        and isbn=#{isbn,jdbcType=VARCHAR}
+      </if>
+      <if test="title != null and title != ''">
+        and title=#{title,jdbcType=VARCHAR}
+      </if>
+      <if test="uid != null">
+        and uid=#{uid,jdbcType=INTEGER}
+      </if>
+      <if test="lendDate != null">
+        and lend_date=#{lendDate,jdbcType=TIMESTAMP}
+      </if>
+      <if test="status != null and status != ''">
+        and status=#{status,jdbcType=VARCHAR}
+      </if>
+    </where>
+  </select>
+
+  <select id="queryById" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List"/>
+    from lend_list
+    where uid=#{id,jdbcType=INTEGER}
+  </select>
+
+</mapper>
