@@ -8,6 +8,7 @@ import modenlibrary.Common.utils.Result;
 import modenlibrary.Common.vo.PageRequest;
 import modenlibrary.Common.vo.PageResult;
 import modenlibrary.Common.vo.ResultVo;
+import modenlibrary.anno.Operation;
 import modenlibrary.entity.Book;
 import modenlibrary.entity.LendList;
 import modenlibrary.entity.User;
@@ -65,6 +66,7 @@ public class BookController {
      * @param session
      * @return
      */
+    @Operation("/借阅图书")
     @GetMapping("/lend/{isbn}")
     @ResponseBody
     public ResultVo lend(@PathVariable("isbn")String isbn, HttpSession session){
@@ -82,6 +84,7 @@ public class BookController {
      * @param session
      * @return
      */
+    @Operation("/归还图书")
     @GetMapping("/return/{isbn}")
     @ResponseBody
     public ResultVo returned(@PathVariable("isbn")String isbn,HttpSession session){
@@ -100,6 +103,7 @@ public class BookController {
      * @param file 上传图片
      * @return
      */
+    @Operation("/添加图书")
     @PostMapping("/add")
     @ResponseBody
     public ResultVo add(Book book, MultipartFile file){
@@ -114,6 +118,7 @@ public class BookController {
      * @param file
      * @return
      */
+    @Operation("/更新图书")
     @PostMapping("/update")
     @ResponseBody
     public ResultVo update(Book book,MultipartFile file){

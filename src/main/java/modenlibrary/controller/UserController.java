@@ -9,6 +9,7 @@ import modenlibrary.Common.utils.Result;
 import modenlibrary.Common.vo.PageRequest;
 import modenlibrary.Common.vo.PageResult;
 import modenlibrary.Common.vo.ResultVo;
+import modenlibrary.anno.Operation;
 import modenlibrary.entity.Blacklist;
 import modenlibrary.entity.User;
 import modenlibrary.service.BlacklistService;
@@ -67,6 +68,7 @@ public class UserController {
      * @param gender    性别 1男 0女
      * @return
      */
+    @Operation("/添加用户")
     @PostMapping("/add")
     @ResponseBody
     public ResultVo add(String username,String password,Integer gender){
@@ -93,6 +95,7 @@ public class UserController {
      * @param id
      * @return
      */
+    @Operation("/删除用户")
     @GetMapping("/del")
     @ResponseBody
     public ResultVo del(Integer id){
@@ -114,6 +117,7 @@ public class UserController {
      * @param user
      * @return
      */
+    @Operation("/更新用户信息")
     @PostMapping("/update")
     @ResponseBody
     public ResultVo update(User user, HttpSession session){
@@ -156,6 +160,7 @@ public class UserController {
      * @param id
      * @return
      */
+    @Operation("/添加用户进黑名单")
     @GetMapping(value = "/black/{id}")
     @ResponseBody
     public ResultVo addBlack(@PathVariable("id")Integer id){
@@ -191,6 +196,7 @@ public class UserController {
      * @param id
      * @return
      */
+    @Operation("/移除用户出黑名单")
     @GetMapping("/black/del")
     @ResponseBody
     public ResultVo delBlack(Integer id){

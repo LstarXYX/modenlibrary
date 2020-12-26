@@ -23,6 +23,8 @@ public enum ReturnCode implements IReturnCode{
     IMG_TYPE_ERROR(303,"图片格式错误"),
     IMG_BLANK_ERROR(304,"图片为空错误"),
     IMG_TOO_BIG(305,"图片大小错误"),
+    REDIS_DELTA_ERROR(500,"递增因子错误"),
+    REDIS_ERROR(501,"Redis错误"),
     SYSTEM_ERROR(999, "系统出错");
 
     private Integer code;

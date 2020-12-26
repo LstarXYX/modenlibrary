@@ -1,6 +1,8 @@
 package modenlibrary.service.impl;
 
 import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.date.LocalDateTimeUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
 import com.github.pagehelper.PageHelper;
@@ -8,6 +10,7 @@ import com.github.pagehelper.PageInfo;
 import modenlibrary.Common.code.ReturnCode;
 import modenlibrary.Common.eum.BookStatus;
 import modenlibrary.Common.exception.BusinessException;
+import modenlibrary.Common.utils.RedisUtil;
 import modenlibrary.Common.vo.PageRequest;
 import modenlibrary.config.ImgProperties;
 import modenlibrary.entity.LendList;
@@ -34,6 +37,7 @@ import java.io.IOException;
 import java.sql.Date;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
@@ -54,6 +58,9 @@ public class BookServiceImpl implements BookService {
 
     @Resource
     private UserMapper userMapper;
+
+    @Resource
+    private RedisUtil redisUtil;
 
     @Autowired
     ImgProperties config;
@@ -143,6 +150,9 @@ public class BookServiceImpl implements BookService {
         bookMapper.updateByPrimaryKey(book);
         user.setAllowLend(user.getAllowLend() - 1);
         userMapper.updateByPrimaryKey(user);
+        //当前日期借书人数加一 格式是：LendBookNum月份 当月第几天
+        double num = redisUtil.hincr("LendBookNum"+DateUtil.thisMonth(),String.valueOf(DateUtil.thisDayOfMonth()),1);
+        logger.info("当天借书人数："+num+"人");
     }
 
     /**

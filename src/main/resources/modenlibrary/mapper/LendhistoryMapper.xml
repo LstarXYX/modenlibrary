@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="modenlibrary.mapper.LendhistoryMapper">
+
+    <resultMap type="modenlibrary.entity.Lendhistory" id="LendhistoryMap">
+        <result property="cdate" column="cdate" jdbcType="TIMESTAMP"/>
+        <result property="people" column="people" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <select id="countDay" parameterType="string" resultType="integer">
+        SELECT people
+        FROM lendhistory
+        WHERE date_format(cdate,'%Y-%m-%d') = #{date,jdbcType=VARCHAR}
+    </select>
+
+    <insert id="insert" >
+        insert into lendhistory(cdate, people)
+        VALUES
+        (#{cdate,jdbcType=TIMESTAMP},#{people,jdbcType=INTEGER})
+    </insert>
+
+    <select id="countAllDay" resultMap="LendhistoryMap">
+        select cdate, people
+        from lendhistory
+        where YEAR(cdate)=#{year,jdbcType=VARCHAR} and month(cdate)=#{month,jdbcType=VARCHAR}
+    </select>
+
+    <select id="countMonth" resultType="java.lang.Integer">
+        select SUM(people) from lendhistory
+        WHERE MONTH(cdate)=#{month,jdbcType=VARCHAR}
+        and YEAR(cdate)=#{year,jdbcType=VARCHAR}
+    </select>
+
+    <select id="countRangeMonth" resultType="modenlibrary.entity.RangeResult">
+        SELECT date_format(cdate,'%Y-%m') as cdate,SUM(people) as num from lendhistory
+        WHERE date_format(cdate,'%Y-%m')
+        BETWEEN #{from,jdbcType=VARCHAR} and #{to,jdbcType=VARCHAR}
+        GROUP BY MONTH(cdate)
+        ORDER BY cdate asc
+    </select>
+
+</mapper>
