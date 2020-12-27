@@ -91,6 +91,9 @@ public class UserController {
     @ResponseBody
     @RequiresPermissions("addUser")
     public ResultVo add(String username,String password,Integer gender){
+        if (userService.selectByUserName(username)!=null){
+            return Result.fail(ReturnCode.USERNAME_HAS_SAME);
+        }
         User user = User.builder()
                 .username(username)
                 .password(password)
