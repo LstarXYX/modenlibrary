@@ -30,7 +30,7 @@ public class AdminController {
      * @param id
      * @return
      */
-    @GetMapping("/addAdmin/{id}")
+    @GetMapping("/add/{id}")
     @Operation("/添加管理员")
     @RequiresRoles("超级管理员")
     public ResultVo addAdmin(@PathVariable("id")Integer id){
