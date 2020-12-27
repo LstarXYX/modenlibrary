@@ -81,4 +81,27 @@
     WHERE
       user.id = #{id,jdbcType=INTEGER}
   </select>
+    <select id="getRolesByUserId" resultMap="BaseResultMap">
+      SELECT
+        role.role_id,
+        role.role_name,
+        role.role_desc
+      FROM
+        user_role
+          INNER JOIN role ON user_role.role_id = role.role_id
+      WHERE
+        user_role.user_id = #{id,jdbcType=INTEGER}
+    </select>
+    <select id="selectByUserId" resultMap="BaseResultMap">
+      SELECT
+        role.role_id,
+        role.role_name,
+        role.role_desc
+      FROM
+        `user`
+          INNER JOIN user_role ON `user`.id = user_role.user_id
+          INNER JOIN role ON user_role.role_id = role.role_id
+      WHERE
+        `user`.id = #{id,jdbcType=INTEGER}
+    </select>
 </mapper>

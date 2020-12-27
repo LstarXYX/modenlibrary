@@ -9,15 +9,15 @@ import modenlibrary.entity.Role;
 import modenlibrary.entity.User;
 import modenlibrary.service.RoleService;
 import modenlibrary.service.UserService;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 
@@ -37,23 +37,60 @@ public class LoginController {
     @Autowired
     private RoleService roleService;
 
+    @RequestMapping("/403")
+    public String not_auth(){
+        return "/403.html";
+    }
+
+    /**
+     * 未登录返回
+     * @return
+     */
+    @RequestMapping("/un_auth")
+    @ResponseBody
+    public ResultVo un_auth(){
+        return Result.fail(ReturnCode.UNAUTH);
+    }
+
+    /**
+     * 没有权限返回
+     * @return
+     */
+    @RequestMapping("/unauthorized")
+    @ResponseBody
+    public ResultVo unauthorized(){
+        return Result.fail(ReturnCode.AUTHOR_ERROR);
+    }
+
     /**
      * 前台登录
      * @return
      */
     @PostMapping(value = "/login")
     @ResponseBody
-    public ResultVo Indexlogin(Integer id, String password, HttpSession session){
-        if (StringUtils.isEmpty(id)||StringUtils.isEmpty(password)){
+    public ResultVo Indexlogin(String username, String password){
+        if (StringUtils.isEmpty(username)||StringUtils.isEmpty(password)){
             throw new BusinessException(ReturnCode.LOGIN_ERROR);
         }
-        User user = userService.login(id, password);
-        if (user != null) {
-            session.setAttribute("userInfo",user);
-        }else {
-            throw new BusinessException(ReturnCode.LOGIN_ERROR);
+        UsernamePasswordToken token = new UsernamePasswordToken(username, password);
+        Subject subject = SecurityUtils.getSubject();
+        if (subject==null){
+            throw new BusinessException(ReturnCode.SYSTEM_ERROR);
+        }
+//        User user = userService.login(id, password);
+//        if (user != null) {
+//            session.setAttribute("userInfo",user);
+//        }else {
+//            throw new BusinessException(ReturnCode.LOGIN_ERROR);
+//        }
+        try {
+            subject.login(token);
+        }catch (Exception e){
+            e.printStackTrace();
+            return Result.fail(ReturnCode.LOGIN_ERROR);
         }
         logger.info("登录成功");
+        User user = (User) subject.getSession().getAttribute("userInfo");
         return Result.success(user);
     }
 

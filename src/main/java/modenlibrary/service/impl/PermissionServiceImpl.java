@@ -5,6 +5,9 @@ import javax.annotation.Resource;
 import modenlibrary.entity.Permission;
 import modenlibrary.mapper.PermissionMapper;
 import modenlibrary.service.PermissionService;
+
+import java.util.List;
+
 /**
  * @author  L.star
  * @date 2020/12/23 16:08
@@ -45,4 +48,8 @@ public class PermissionServiceImpl implements PermissionService{
         return permissionMapper.updateByPrimaryKey(record);
     }
 
+    @Override
+    public List<Permission> getPermissionsByUserId(Integer id) {
+        return permissionMapper.getPermissionsByUserId(id);
+    }
 }

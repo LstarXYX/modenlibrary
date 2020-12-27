@@ -44,4 +44,8 @@ public interface UserService{
     PageInfo<User> queryUser(PageRequest pageRequest, User user);
 
     Boolean isAdmin(Integer id);
+
+    User selectByUserName(String username);
+
+    int changeRole(Integer id,Integer roleId);
 }

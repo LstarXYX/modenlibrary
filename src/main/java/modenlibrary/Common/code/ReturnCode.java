@@ -13,7 +13,8 @@ public enum ReturnCode implements IReturnCode{
      */
     SUCCESS(200, "成功"),
     LOGIN_ERROR(201, "用户名或密码错误"),
-    AUTHOR_ERROR(500, "没有权限"),
+    UNAUTH(202,"用户未登录"),
+    AUTHOR_ERROR(403, "没有权限"),
     FORM_ERROR(400, "表单错误"),
     BOOK_LESS(203,"该书已借完"),
     BOOK_UNKNOWN(204,"该书不存在"),

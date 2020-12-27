@@ -2,7 +2,9 @@ package modenlibrary.controller;
 
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.crypto.digest.DigestUtil;
 import modenlibrary.Common.code.ReturnCode;
+import modenlibrary.Common.eum.RoleEnum;
 import modenlibrary.Common.exception.BusinessException;
 import modenlibrary.Common.utils.PageUtils;
 import modenlibrary.Common.utils.Result;
@@ -16,6 +18,8 @@ import modenlibrary.service.BlacklistService;
 import modenlibrary.service.LendListService;
 import modenlibrary.service.RoleService;
 import modenlibrary.service.UserService;
+import org.apache.shiro.authz.annotation.RequiresAuthentication;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.DigestUtils;
@@ -56,8 +60,22 @@ public class UserController {
      */
     @GetMapping("/queryAll")
     @ResponseBody
+    @RequiresPermissions("queryUser")
     public PageResult queryAll(PageRequest pageRequest, User user){
         return PageUtils.getPageResult(pageRequest,userService.queryUser(pageRequest,user));
+    }
+
+    /**
+     * 查询用户个人信息
+     *
+     * @param session
+     * @return
+     */
+    @GetMapping("/info")
+    @ResponseBody
+    @RequiresAuthentication
+    public ResultVo info(HttpSession session){
+        return Result.success(userService.selectByPrimaryKey(((User)session.getAttribute("userInfo")).getId()));
     }
 
     /**
@@ -71,6 +89,7 @@ public class UserController {
     @Operation("/添加用户")
     @PostMapping("/add")
     @ResponseBody
+    @RequiresPermissions("addUser")
     public ResultVo add(String username,String password,Integer gender){
         User user = User.builder()
                 .username(username)
@@ -98,6 +117,7 @@ public class UserController {
     @Operation("/删除用户")
     @GetMapping("/del")
     @ResponseBody
+    @RequiresPermissions("delUser")
     public ResultVo del(Integer id){
         User user = userService.selectByPrimaryKey(id);
         if (user == null) {
@@ -120,6 +140,7 @@ public class UserController {
     @Operation("/更新用户信息")
     @PostMapping("/update")
     @ResponseBody
+    @RequiresPermissions("updateUser")
     public ResultVo update(User user, HttpSession session){
         User u = (User) session.getAttribute("userInfo");
         //判断是否管理员
@@ -163,6 +184,7 @@ public class UserController {
     @Operation("/添加用户进黑名单")
     @GetMapping(value = "/black/{id}")
     @ResponseBody
+    @RequiresPermissions("addblack")
     public ResultVo addBlack(@PathVariable("id")Integer id){
         User user = userService.selectByPrimaryKey(id);
         if (user==null){
@@ -172,7 +194,6 @@ public class UserController {
         user.setIsblack(Byte.valueOf("1"));
         int ok = userService.updateByPrimaryKeySelective(user);
         if (ok==1){
-            ok = -1;
             Blacklist blacklist = Blacklist.builder()
                     .uid(user.getId())
                     .uname(user.getUsername())
@@ -181,6 +202,8 @@ public class UserController {
             //加入黑名单列表
             ok = blacklistService.insert(blacklist);
             if (ok == 1){
+                //更改角色
+                userService.changeRole(user.getId(), RoleEnum.BLACK.getRoleid());
                 return Result.success(blacklist);
             }else {
                 throw new  BusinessException(ReturnCode.SYSTEM_ERROR);
@@ -199,6 +222,7 @@ public class UserController {
     @Operation("/移除用户出黑名单")
     @GetMapping("/black/del")
     @ResponseBody
+    @RequiresPermissions("delblack")
     public ResultVo delBlack(Integer id){
         User user = userService.selectByPrimaryKey(id);
         if (user==null){
@@ -210,6 +234,7 @@ public class UserController {
         //从黑名单上删除
         int ok = blacklistService.del(user.getId());
         if (ok==1){
+            userService.changeRole(user.getId(),RoleEnum.READER.getRoleid());
             return Result.success(user);
         }else {
             throw new BusinessException(ReturnCode.SYSTEM_ERROR);
@@ -224,9 +249,31 @@ public class UserController {
      */
     @GetMapping("/lendlist")
     @ResponseBody
+    @RequiresPermissions("lendInfo")
     public PageResult lendlist(PageRequest pageRequest,HttpSession session){
         User user = (User) session.getAttribute("userInfo");
         return PageUtils.getPageResult(pageRequest,lendListService.queryById(pageRequest,user.getId()));
+    }
+
+    /**
+     * 更改用户密码
+     *
+     * @param password
+     * @param session
+     * @return
+     */
+    @PostMapping("/pwd")
+    @ResponseBody
+    @RequiresAuthentication
+    public ResultVo changePwd(String password,HttpSession session){
+        if (StrUtil.isBlankIfStr(password)){
+            return Result.fail(ReturnCode.LOGIN_ERROR);
+        }
+        User user = (User) session.getAttribute("userInfo");
+        user.setPassword(DigestUtil.md5Hex(password));
+        userService.updateByPrimaryKey(user);
+        session.setAttribute("userInfo",user);
+        return Result.success(user);
     }
 
 }

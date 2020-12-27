@@ -11,6 +11,8 @@ import modenlibrary.Common.utils.Result;
 import modenlibrary.Common.vo.ResultVo;
 import modenlibrary.service.DataService;
 import modenlibrary.service.SysLogService;
+import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -48,6 +50,7 @@ public class DataController {
      */
     @GetMapping("/lendbooknum/day/{date}")
     @ResponseBody
+    @RequiresRoles(value = {"普通管理员","超级管理员"},logical = Logical.OR)
     public ResultVo lendNumOfDay(@PathVariable("date")String date){
         if (date==null){
             date = DateUtil.today();
@@ -72,6 +75,7 @@ public class DataController {
      */
     @GetMapping("/lendbooknum/Allday/{YearMonth}")
     @ResponseBody
+    @RequiresRoles(value = {"普通管理员","超级管理员"},logical = Logical.OR)
     public ResultVo lendNumOfAllDay(@PathVariable("YearMonth")String YearMonth){
         if (YearMonth==null){
             YearMonth = DateUtil.thisYear()+"-"+DateUtil.thisMonth()+1;
@@ -87,6 +91,7 @@ public class DataController {
      */
     @GetMapping("/lendbooknum/month/{YearMonth}")
     @ResponseBody
+    @RequiresRoles(value = {"普通管理员","超级管理员"},logical = Logical.OR)
     public ResultVo lendNumOfMonth(@PathVariable("YearMonth")String YearMonth){
         if (StrUtil.isBlank(YearMonth)){
             YearMonth = DateUtil.thisYear()+"-"+DateUtil.thisMonth()+1;
@@ -103,6 +108,7 @@ public class DataController {
      */
     @GetMapping("/lendbooknum/rangemonth")
     @ResponseBody
+    @RequiresRoles(value = {"普通管理员","超级管理员"},logical = Logical.OR)
     public ResultVo lendNumOfRangeMonth(String from,String to){
         //如果是空的 返回这个月的给它
         if (StrUtil.isBlank(from)||StrUtil.isBlank(to)){
@@ -119,6 +125,7 @@ public class DataController {
      */
     @GetMapping("/syslog/ip/{ip}")
     @ResponseBody
+    @RequiresRoles("超级管理员")
     public ResultVo syslogByIp(@PathVariable("ip")String ip){
         return Result.success(sysLogService.queryByIp(ip));
     }
@@ -130,6 +137,7 @@ public class DataController {
      */
     @GetMapping("/syslog/all")
     @ResponseBody
+    @RequiresRoles("超级管理员")
     public ResultVo syslogAll(){
         return Result.success(sysLogService.queryAll());
     }

@@ -2,6 +2,8 @@ package modenlibrary.mapper;
 
 import modenlibrary.entity.Role;
 
+import java.util.List;
+
 /**
  * @author  L.star
  * @date 2020/12/23 16:08
@@ -25,4 +27,8 @@ public interface RoleMapper {
      * @return
      */
     Role isAdmin(Integer id);
+
+    List<Role> getRolesByUserId(Integer id);
+
+    Role selectByUserId(Integer id);
 }

@@ -98,4 +98,19 @@ public class UserServiceImpl implements UserService{
         }
         return !(role.getRoleName().equals(RoleEnum.READER));
     }
+
+    @Override
+    public User selectByUserName(String username) {
+        return userMapper.selectByUserName(username);
+    }
+
+    /**
+     * 把用户角色变为黑名单角色
+     * @param id
+     * @return
+     */
+    @Override
+    public int changeRole(Integer id,Integer roleId) {
+        return userMapper.changeRole(id,roleId);
+    }
 }

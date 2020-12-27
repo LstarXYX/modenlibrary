@@ -5,6 +5,7 @@ import modenlibrary.Common.vo.PageRequest;
 import modenlibrary.Common.vo.PageResult;
 import modenlibrary.entity.LendList;
 import modenlibrary.service.LendListService;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,6 +31,7 @@ public class LendListController {
      */
     @GetMapping("/queryall")
     @ResponseBody
+    @RequiresPermissions("queryUserLendInfo")
     public PageResult queryAll(PageRequest pageRequest, LendList lendList){
         return PageUtils.getPageResult(pageRequest,lendListService.queryAll(pageRequest,lendList));
     }

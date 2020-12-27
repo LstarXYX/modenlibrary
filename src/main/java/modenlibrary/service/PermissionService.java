@@ -1,7 +1,10 @@
 package modenlibrary.service;
 
 import modenlibrary.entity.Permission;
-    /**
+
+import java.util.List;
+
+/**
  * @author  L.star
  * @date 2020/12/23 16:08
  */
@@ -20,4 +23,5 @@ public interface PermissionService{
 
     int updateByPrimaryKey(Permission record);
 
-}
+    List<Permission> getPermissionsByUserId(Integer id);
+    }

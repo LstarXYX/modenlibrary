@@ -36,4 +36,8 @@ public interface UserMapper {
      * @return
      */
     List<User> queryUser(User user);
+
+    User selectByUserName(String username);
+
+    int changeRole(@Param("id")Integer id,@Param("roleId")Integer roleId);
 }

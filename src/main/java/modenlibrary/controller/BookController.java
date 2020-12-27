@@ -15,6 +15,8 @@ import modenlibrary.entity.User;
 import modenlibrary.service.BookService;
 import modenlibrary.service.LendListService;
 import modenlibrary.service.UserService;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +58,7 @@ public class BookController {
      */
     @GetMapping("/queryAll")
     @ResponseBody
+    @RequiresPermissions("querybook")
     public PageResult queryAll(PageRequest pageRequest, Book book){
         return PageUtils.getPageResult(pageRequest,bookService.queryAll(pageRequest,book));
     }
@@ -69,6 +72,7 @@ public class BookController {
     @Operation("/借阅图书")
     @GetMapping("/lend/{isbn}")
     @ResponseBody
+    @RequiresPermissions("lend")
     public ResultVo lend(@PathVariable("isbn")String isbn, HttpSession session){
         //获取用户
         User user = (User) session.getAttribute("userInfo");
@@ -87,6 +91,7 @@ public class BookController {
     @Operation("/归还图书")
     @GetMapping("/return/{isbn}")
     @ResponseBody
+    @RequiresPermissions("return")
     public ResultVo returned(@PathVariable("isbn")String isbn,HttpSession session){
         User user = (User) session.getAttribute("userInfo");
         boolean ok = bookService.returnedBook(user, isbn,BookStatus.RETURNED);
@@ -106,6 +111,7 @@ public class BookController {
     @Operation("/添加图书")
     @PostMapping("/add")
     @ResponseBody
+    @RequiresPermissions("addbook")
     public ResultVo add(Book book, MultipartFile file){
         book = bookService.addBook(book,file);
         return Result.success(book);
@@ -121,6 +127,7 @@ public class BookController {
     @Operation("/更新图书")
     @PostMapping("/update")
     @ResponseBody
+    @RequiresPermissions("updatebook")
     public ResultVo update(Book book,MultipartFile file){
         book = bookService.updateBook(book,file);
         return Result.success(book);

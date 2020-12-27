@@ -160,5 +160,16 @@
       </if>
     </where>
   </select>
+    <select id="selectByUserName" resultMap="BaseResultMap">
+      select <include refid="Base_Column_List"/>
+      from user
+      where username=#{username,jdbcType=VARCHAR}
+    </select>
+
+  <update id="changeRole">
+    update user_role
+    set role_id=#{roleId,jdbcType=INTEGER}
+    where user_id=#{id,jdbcType=INTEGER}
+  </update>
 
 </mapper>

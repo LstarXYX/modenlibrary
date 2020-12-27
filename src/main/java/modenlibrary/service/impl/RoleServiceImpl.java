@@ -5,6 +5,9 @@ import javax.annotation.Resource;
 import modenlibrary.entity.Role;
 import modenlibrary.mapper.RoleMapper;
 import modenlibrary.service.RoleService;
+
+import java.util.List;
+
 /**
  * @author  L.star
  * @date 2020/12/23 16:08
@@ -43,5 +46,15 @@ public class RoleServiceImpl implements RoleService{
     @Override
     public int updateByPrimaryKey(Role record) {
         return roleMapper.updateByPrimaryKey(record);
+    }
+
+    @Override
+    public List<Role> getRolesByUserId(Integer id) {
+        return roleMapper.getRolesByUserId(id);
+    }
+
+    @Override
+    public Role selectByUserId(Integer id) {
+        return roleMapper.selectByUserId(id);
     }
 }

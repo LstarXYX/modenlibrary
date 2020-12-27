@@ -2,6 +2,8 @@ package modenlibrary.mapper;
 
 import modenlibrary.entity.Permission;
 
+import java.util.List;
+
 /**
  * @author  L.star
  * @date 2020/12/23 16:08
@@ -18,4 +20,6 @@ public interface PermissionMapper {
     int updateByPrimaryKeySelective(Permission record);
 
     int updateByPrimaryKey(Permission record);
+
+    List<Permission> getPermissionsByUserId(Integer id);
 }

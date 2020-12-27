@@ -82,4 +82,18 @@
       permission_url = #{permissionUrl,jdbcType=VARCHAR}
     where permission_id = #{permissionId,jdbcType=INTEGER}
   </update>
+    <select id="getPermissionsByUserId" resultMap="BaseResultMap">
+      SELECT
+        permission.permission_id,
+        permission.permission_name,
+        permission.permission_desc,
+        permission.permission_url
+      FROM
+        user_role
+          INNER JOIN role ON user_role.role_id = role.role_id
+          INNER JOIN role_permission ON role.role_id = role_permission.r_id
+          INNER JOIN permission ON role_permission.p_id = permission.permission_id
+      WHERE
+        user_role.user_id = #{id,jdbcType=INTEGER}
+    </select>
 </mapper>
