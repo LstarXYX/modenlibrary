@@ -1,10 +1,12 @@
 package modenlibrary.service;
 
+import modenlibrary.Common.vo.ResultVo;
 import modenlibrary.entity.Lendhistory;
 import modenlibrary.entity.RangeResult;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 统计数据的接口
@@ -21,4 +23,11 @@ public interface DataService {
 
     List<RangeResult> LendBookNumOfRangeMonth(String from, String to);
 
+    Map<String, Integer> categoryNum();
+
+    Map<String, Integer> LendBookNumOfGender();
+
+    Integer getUserNum();
+
+    Map<String, Integer> categoryLendNum();
 }

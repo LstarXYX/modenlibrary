@@ -12,10 +12,10 @@ public class PageRequest {
     /**
      * 当前页码
      */
-    private int pageNum = 0;
+    private int pageNum;
     /**
      * 每页数量 默认20
      */
-    private int pageSize = 20;
+    private int pageSize=24;
 
 }

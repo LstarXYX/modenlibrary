@@ -5,6 +5,7 @@ import modenlibrary.entity.RangeResult;
 
 import java.sql.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * (Lendhistory)表服务接口
@@ -24,4 +25,7 @@ public interface LendhistoryService {
 
     List<RangeResult> countRangeMonth(String from, String to);
 
+    Map<String, Integer> LendBookNumOfGender();
+
+    Map<String, Integer> categoryLendNum();
 }

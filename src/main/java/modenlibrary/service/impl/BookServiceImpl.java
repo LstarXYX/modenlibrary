@@ -13,8 +13,10 @@ import modenlibrary.Common.exception.BusinessException;
 import modenlibrary.Common.utils.RedisUtil;
 import modenlibrary.Common.vo.PageRequest;
 import modenlibrary.config.ImgProperties;
+import modenlibrary.entity.Category;
 import modenlibrary.entity.LendList;
 import modenlibrary.entity.User;
+import modenlibrary.mapper.CategoryMapper;
 import modenlibrary.mapper.LendListMapper;
 import modenlibrary.mapper.UserMapper;
 import org.slf4j.Logger;
@@ -37,9 +39,7 @@ import java.io.IOException;
 import java.sql.Date;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Calendar;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @author L.star
@@ -61,6 +61,9 @@ public class BookServiceImpl implements BookService {
 
     @Resource
     private RedisUtil redisUtil;
+
+    @Resource
+    private CategoryMapper categoryMapper;
 
     @Autowired
     ImgProperties config;
@@ -151,7 +154,7 @@ public class BookServiceImpl implements BookService {
         user.setAllowLend(user.getAllowLend() - 1);
         userMapper.updateByPrimaryKey(user);
         //当前日期借书人数加一 格式是：LendBookNum月份 当月第几天
-        double num = redisUtil.hincr("LendBookNum"+DateUtil.thisMonth(),String.valueOf(DateUtil.thisDayOfMonth()),1);
+        double num = redisUtil.hincr("LendBookNum"+DateUtil.thisMonth()+1,String.valueOf(DateUtil.thisDayOfMonth()),1);
         logger.info("当天借书人数："+num+"人");
     }
 
@@ -167,26 +170,43 @@ public class BookServiceImpl implements BookService {
     public Boolean returnedBook(User user, String isbn, BookStatus status) {
         //书本
         Book book = bookMapper.selectByPrimaryKey(isbn);
+        if (book==null){
+            throw new BusinessException(ReturnCode.BOOK_UNKNOWN);
+        }
         //查找借的图书记录
         LendList lendList = lendListMapper.queryLendBook(book.getIsbn(), user.getId());
         if (lendList == null) {
             //没有这个借书记录
             throw new BusinessException(ReturnCode.NOT_LEND_LIST);
         }
-        //
-        lendList.setReturnDate(DateTime.now());
-        lendList.setStatus(BookStatus.RETURNED.getMsg());
-        int ok = lendListMapper.updateLendList(lendList);
-        if (ok == 1) {
-            //书本数目
-            book.setBookNum(book.getBookNum() + 1);
-            bookMapper.updateByPrimaryKeySelective(book);
-            //用户借书数目
-            user.setAllowLend(user.getAllowLend() + 1);
-            userMapper.updateByPrimaryKeySelective(user);
-            return true;
-        } else {
-            throw new BusinessException(ReturnCode.SYSTEM_ERROR);
+        switch (status){
+            case LENDING:
+//              如果改为借出 把借出日期改为今天
+                lendList.setLendDate(DateTime.now());
+                this.lendBook(user,isbn);
+                return true;
+            case RETURNED:
+                //如果改为归还
+                lendList.setReturnDate(DateTime.now());
+                lendList.setStatus(BookStatus.RETURNED.getMsg());
+                int ok = lendListMapper.updateLendList(lendList);
+                if (ok == 1) {
+                    //书本数目
+                    book.setBookNum(book.getBookNum() + 1);
+                    bookMapper.updateByPrimaryKeySelective(book);
+                    //用户借书数目
+                    user.setAllowLend(user.getAllowLend() + 1);
+                    userMapper.updateByPrimaryKeySelective(user);
+                    return true;
+                } else {
+                    throw new BusinessException(ReturnCode.SYSTEM_ERROR);
+                }
+            case OTHERS:
+                lendList.setStatus(BookStatus.OTHERS.getMsg());
+                lendListMapper.updateLendList(lendList);
+                return true;
+            default:
+                return false;
         }
     }
 
@@ -200,7 +220,7 @@ public class BookServiceImpl implements BookService {
     public Book addBook(Book book, MultipartFile file) {
         if (bookMapper.selectByPrimaryKey(book.getIsbn()) != null) {
             //该isbn书已经有了
-            throw new BusinessException(ReturnCode.SYSTEM_ERROR);
+            throw new BusinessException(101,"该ISBN号已经有了");
         }
         if (book.getIsbn().length()!=10){
             throw new BusinessException(100, "isbn号错误！");
@@ -212,6 +232,18 @@ public class BookServiceImpl implements BookService {
                book = addImg(book,file);
                int ok = bookMapper.insert(book);
                if (ok==1){
+                   if (book.getCategoryId()!=null||book.getCategoryId()!=0){
+                       Category category = categoryMapper.findById(book.getCategoryId());
+                       Object obj = redisUtil.hget("categoryNum", category.getCName());
+                       Integer categoryNum;
+                       if (obj!=null){
+                           categoryNum = (Integer) obj;
+                       }else {
+                           categoryNum = 0;
+                       }
+                       //增加数量
+                       redisUtil.hset("categoryNum",category.getCName(),categoryNum+1);
+                   }
                    return book;
                }else {
                    throw new BusinessException(ReturnCode.SYSTEM_ERROR);
@@ -229,6 +261,19 @@ public class BookServiceImpl implements BookService {
             //如果图片为空 直接保存书
             int ok = bookMapper.insert(book);
             if (ok == 1) {
+                //添加该类型的书的数量
+                if (book.getCategoryId()!=null||book.getCategoryId()!=0){
+                    Category category = categoryMapper.findById(book.getCategoryId());
+                    Object obj = redisUtil.hget("categoryNum", category.getCName());
+                    Integer categoryNum;
+                    if (obj!=null){
+                        categoryNum = (Integer) obj;
+                    }else {
+                        categoryNum = 0;
+                    }
+                    //增加数量
+                    redisUtil.hset("categoryNum",category.getCName(),categoryNum+1);
+                }
                 return book;
             } else {
                 throw new BusinessException(ReturnCode.SYSTEM_ERROR);
@@ -245,9 +290,9 @@ public class BookServiceImpl implements BookService {
      */
     @Override
     public Book updateBook(Book book, MultipartFile file) {
+        logger.info("接收到的book------"+book.toString());
         //图书是否存在
-        book = bookMapper.selectByPrimaryKey(book.getIsbn());
-        if (book==null){
+        if (bookMapper.selectByPrimaryKey(book.getIsbn())==null){
             throw new BusinessException(999,"ISBN错误");
         }
         //判断是否带有文件 是否更换图片
@@ -255,7 +300,10 @@ public class BookServiceImpl implements BookService {
             try {
                 //有文件 更换图片信息 更新书本
                 String path = ResourceUtils.getURL("classpath:").getPath() + config.getUplodaPath();
-                String realPath = path.replace("/", "\\").substring(1, path.length());
+                logger.info("path-----"+path);
+//                String realPath = path.replace("/", "\\").substring(1, path.length());
+                String realPath = config.getRealPath();
+                logger.info("RealPath----"+realPath);
                 //判断旧书本信息是否有图片
                 if (!StrUtil.isBlank(book.getImgPath())){
                     //原本有图片
@@ -277,6 +325,7 @@ public class BookServiceImpl implements BookService {
                 }
                 //更新数据库信息
                 int ok = bookMapper.updateByPrimaryKeySelective(book);
+                logger.info("有图片修改后---"+book.toString());
                 if (ok==1){
                     return book;
                 }else {
@@ -294,6 +343,7 @@ public class BookServiceImpl implements BookService {
         }else {
             //若没有文件，直接更新书本
             int ok = bookMapper.updateByPrimaryKeySelective(book);
+            logger.info("没图片修改后---"+book.toString());
             if (ok==1){
                 return book;
             }else {
@@ -314,7 +364,8 @@ public class BookServiceImpl implements BookService {
     private Book addImg(Book book, MultipartFile file)throws FileNotFoundException,IOException{
             //上传地址  更改如：static/upload/imgs
             String path = ResourceUtils.getURL("classpath:").getPath() + config.getUplodaPath();
-            String realPath = path.replace("/", "\\").substring(1, path.length());
+//            String realPath = path.replace("/", "\\").substring(1, path.length());
+            String realPath = config.getRealPath();
             logger.info("保存的地址为：" + realPath);
             //文件名称
             String uuid = UUID.randomUUID().toString().replaceAll("-", "");
@@ -327,7 +378,6 @@ public class BookServiceImpl implements BookService {
             String suffixName = contentType.substring(contentType.indexOf("/") + 1);
             logger.info("文件后缀: "+suffixName);
             for (String type : types) {
-                logger.info("读取到的格式："+type);
                 if (StrUtil.equalsIgnoreCase(type, suffixName)) {
                     //如果有一个匹配 就为true
                     flag = true;
@@ -340,7 +390,7 @@ public class BookServiceImpl implements BookService {
                 //上传
                 FileUtil.writeFromStream(file.getInputStream(),photo);
                 //存进数据库用来访问图片的地址
-                book.setImgPath(config.getBaseURL() + config.getDataBasePath()+"/" + imgName);
+                book.setImgPath( config.getBaseURL()+ imgName);
                 return book;
             } else {
                 //一个都不匹配
@@ -349,5 +399,26 @@ public class BookServiceImpl implements BookService {
 
     }
 
-
+    /**
+     * 获取不同分类的书本数量
+     * @return
+     */
+    @Override
+    public Map<String, Integer> categoryNum() {
+        Map<String, Integer>map = new HashMap<>();
+        List<Map<String, Object>>list = bookMapper.categoryNum();
+        for (Map<String, Object> stringObjectMap : list) {
+            String cname = null;
+            Integer num = 0;
+            for(Map.Entry<String,Object>entry : stringObjectMap.entrySet()){
+                if ("cname".equals(entry.getKey())){
+                    cname = String.valueOf(entry.getValue());
+                }else if ("num".equals(entry.getKey())){
+                    num = Integer.parseInt((entry.getValue() + ""));
+                }
+                map.put(cname,num);
+            }
+        }
+        return map;
+    }
 }

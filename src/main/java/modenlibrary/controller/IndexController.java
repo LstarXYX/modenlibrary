@@ -7,6 +7,7 @@ import modenlibrary.Common.utils.Result;
 import modenlibrary.Common.vo.ResultVo;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -19,6 +20,7 @@ import java.io.IOException;
  */
 @Controller
 @Slf4j
+@CrossOrigin(originPatterns = "*",maxAge = 3600)
 public class IndexController {
 
     @GetMapping({"/","/index"})

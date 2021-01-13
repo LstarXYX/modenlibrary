@@ -2,10 +2,13 @@ package modenlibrary.entity;
 
 import java.io.Serializable;
 import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 
 /**
  * @author  L.star
@@ -41,6 +44,8 @@ public class SysLog implements Serializable {
     /**
     * 操作时间
     */
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date createdate;
 
     private String ip;

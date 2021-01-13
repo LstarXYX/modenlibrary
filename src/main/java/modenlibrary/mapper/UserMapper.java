@@ -2,6 +2,7 @@ package modenlibrary.mapper;
 
 import modenlibrary.Common.vo.PageRequest;
 import modenlibrary.entity.User;
+import modenlibrary.entity.Vo.UserInfo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -20,6 +21,8 @@ public interface UserMapper {
      */
     int insert(User record);
 
+    int addReaderRole(Integer userId);
+
     int insertSelective(User record);
 
     User selectByPrimaryKey(Integer id);
@@ -35,9 +38,11 @@ public interface UserMapper {
      * @param user
      * @return
      */
-    List<User> queryUser(User user);
+    List<UserInfo> queryUser(User user);
 
     User selectByUserName(String username);
 
     int changeRole(@Param("id")Integer id,@Param("roleId")Integer roleId);
+
+    Integer getUserNum();
 }

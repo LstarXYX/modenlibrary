@@ -118,16 +118,16 @@
     where id = #{id,jdbcType=BIGINT}
   </update>
   <select id="querByIp" resultMap="BaseResultMap">
-    select uid,oper,method,params,createDate,ip
+    select id,uid,oper,method,params,createDate,ip
     from sys_log
     where ip=#{ip,jdbcType=VARCHAR}
     order by id desc
-    limit 30
+    limit 50
   </select>
-  <select id="queryAll" resultMap="BaseResultMap">
-    select uid,oper,method,params,createDate,ip
+  <select id="queryAll" parameterType="integer" resultMap="BaseResultMap">
+    select id,uid,oper,method,params,createDate,ip
     from sys_log
     order by id desc
-    limit 100
+    limit #{num,jdbcType=INTEGER}
   </select>
 </mapper>

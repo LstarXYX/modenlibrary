@@ -5,10 +5,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 /**
@@ -19,6 +16,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class Book implements Serializable {
     /**
     * 图书的isbn号 总共11位
@@ -66,6 +64,8 @@ public class Book implements Serializable {
     * 图书图片的地址
     */
     private String imgPath;
+
+
 
     private static final long serialVersionUID = 1L;
 }

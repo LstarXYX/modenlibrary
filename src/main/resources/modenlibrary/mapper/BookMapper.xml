@@ -121,10 +121,10 @@
     <!--@mbg.generated-->
     update book
     <set>
-      <if test="title != null">
+      <if test="title != null and title !='' ">
         title = #{title,jdbcType=VARCHAR},
       </if>
-      <if test="author != null">
+      <if test="author != null and author !=''">
         author = #{author,jdbcType=VARCHAR},
       </if>
       <if test="publishDate != null">
@@ -136,7 +136,7 @@
       <if test="price != null">
         price = #{price,jdbcType=DECIMAL},
       </if>
-      <if test="description != null">
+      <if test="description != null and description !=''">
         description = #{description,jdbcType=LONGVARCHAR},
       </if>
       <if test="bookNum != null">
@@ -171,7 +171,7 @@
         isbn=#{isbn,jdbcType=VARCHAR}
       </if>
       <if test="title != null and title != ''">
-        and title=#{title,jdbcType=VARCHAR}
+        and title like concat('%',#{title,jdbcType=VARCHAR},'%')
       </if>
       <if test="author != null and author != ''">
         and author=#{author,jdbcType=VARCHAR}
@@ -181,5 +181,15 @@
       </if>
     </where>
   </select>
+    <select id="categoryNum" resultType="java.util.Map">
+      SELECT
+        category.c_name as cname,
+        Count(book.category_id) as num
+      FROM
+        category
+          LEFT JOIN book ON book.category_id = category.id
+      GROUP BY
+        category.c_name
+    </select>
 
 </mapper>

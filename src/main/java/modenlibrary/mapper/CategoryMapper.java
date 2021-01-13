@@ -7,5 +7,5 @@ import modenlibrary.entity.Category;
  * @date 2020/12/23 20:48
  */
 public interface CategoryMapper {
-    Category findById();
+    Category findById(Integer id);
 }

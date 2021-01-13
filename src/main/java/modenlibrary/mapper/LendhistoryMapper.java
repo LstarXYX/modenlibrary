@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Param;
 
 import java.sql.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * (Lendhistory)表数据库访问层
@@ -25,4 +26,8 @@ public interface LendhistoryMapper {
     Integer countMonth(@Param("year")String year,@Param("month")String month);
 
     List<RangeResult> countRangeMonth(@Param("from")String from, @Param("to")String to);
+
+    List<Map<Object, Object>> LendBoookNumOfGender();
+
+    List<Map<String, Object>> categoryLendNum();
 }

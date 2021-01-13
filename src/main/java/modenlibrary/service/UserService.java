@@ -3,6 +3,7 @@ package modenlibrary.service;
 import com.github.pagehelper.PageInfo;
 import modenlibrary.Common.vo.PageRequest;
 import modenlibrary.entity.User;
+import modenlibrary.entity.Vo.UserInfo;
 
 import java.util.List;
 
@@ -41,11 +42,13 @@ public interface UserService{
      * @param user
      * @return
      */
-    PageInfo<User> queryUser(PageRequest pageRequest, User user);
+    PageInfo<UserInfo> queryUser(PageRequest pageRequest, User user);
 
     Boolean isAdmin(Integer id);
 
     User selectByUserName(String username);
 
     int changeRole(Integer id,Integer roleId);
+
+    Integer getUserNum();
 }

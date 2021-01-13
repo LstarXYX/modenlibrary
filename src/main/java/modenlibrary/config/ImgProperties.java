@@ -33,4 +33,6 @@ public class ImgProperties {
     @Value("${img.dataBasePath}")
     private String dataBasePath;
 
+    @Value("${img.realPath}")
+    private String realPath;
 }

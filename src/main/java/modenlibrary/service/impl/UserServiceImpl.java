@@ -7,6 +7,7 @@ import modenlibrary.Common.eum.RoleEnum;
 import modenlibrary.Common.exception.BusinessException;
 import modenlibrary.Common.vo.PageRequest;
 import modenlibrary.entity.Role;
+import modenlibrary.entity.Vo.UserInfo;
 import modenlibrary.mapper.RoleMapper;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
@@ -34,9 +35,18 @@ public class UserServiceImpl implements UserService{
         return userMapper.deleteByPrimaryKey(id);
     }
 
+    /**
+     * 添加用户 把角色也添加进角色用户表
+     * @param record
+     * @return
+     */
     @Override
     public int insert(User record) {
-        return userMapper.insert(record);
+        int ok = userMapper.insert(record);
+        if (ok==1){
+           ok = userMapper.addReaderRole(record.getId());
+        }
+        return ok;
     }
 
     @Override
@@ -82,11 +92,12 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public PageInfo<User> queryUser(PageRequest pageRequest,User user) {
+    public PageInfo<UserInfo> queryUser(PageRequest pageRequest,User user) {
         int pageNum = pageRequest.getPageNum();
         int pageSize = pageRequest.getPageSize();
         PageHelper.startPage(pageNum,pageSize);
-        List<User>users = userMapper.queryUser(user);
+//        List<User>users = userMapper.queryUser(user);
+        List<UserInfo>users = userMapper.queryUser(user);
         return new PageInfo<>(users);
     }
 
@@ -96,7 +107,7 @@ public class UserServiceImpl implements UserService{
         if (role==null){
             throw new BusinessException(ReturnCode.NOT_USER);
         }
-        return !(role.getRoleName().equals(RoleEnum.READER));
+        return (role.getRoleName().equals(RoleEnum.ADMIN.getName())||role.getRoleName().equals(RoleEnum.SPADMIN.getName()));
     }
 
     @Override
@@ -112,5 +123,10 @@ public class UserServiceImpl implements UserService{
     @Override
     public int changeRole(Integer id,Integer roleId) {
         return userMapper.changeRole(id,roleId);
+    }
+
+    @Override
+    public Integer getUserNum() {
+        return userMapper.getUserNum();
     }
 }

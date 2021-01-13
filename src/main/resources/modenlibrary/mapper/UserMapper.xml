@@ -13,6 +13,21 @@
     <result column="isdel" jdbcType="TINYINT" property="isdel" />
     <result column="register_date" jdbcType="TIMESTAMP" property="registerDate" />
   </resultMap>
+  <resultMap id="UserInfoResultMap" type="modenlibrary.entity.Vo.UserInfo">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="username" jdbcType="VARCHAR" property="username" />
+    <result column="password" jdbcType="VARCHAR" property="password" />
+    <result column="gender" jdbcType="TINYINT" property="gender" />
+    <result column="isblack" jdbcType="TINYINT" property="isblack" />
+    <result column="allow_lend" jdbcType="INTEGER" property="allowLend" />
+    <result column="isdel" jdbcType="TINYINT" property="isdel" />
+    <result column="register_date" jdbcType="TIMESTAMP" property="registerDate" />
+    <association property="role" javaType="modenlibrary.entity.Role">
+      <result column="role_id" jdbcType="INTEGER" property="roleId"/>
+      <result column="role_name" jdbcType="VARCHAR" property="roleName"/>
+      <result column="role_desc" jdbcType="VARCHAR" property="roleDesc"/>
+    </association>
+  </resultMap>
   <sql id="Base_Column_List">
     <!--@mbg.generated-->
     id, username, `password`, gender, isblack, allow_lend, isdel, register_date
@@ -35,7 +50,9 @@
     values (#{username,jdbcType=VARCHAR},md5(#{password,jdbcType=VARCHAR}), #{gender,jdbcType=TINYINT},
       #{registerDate,jdbcType=TIMESTAMP})
   </insert>
-
+  <insert id="addReaderRole">
+    insert into user_role(user_id, role_id) VALUES (#{userId,jdbcType=INTEGER},3);
+  </insert>
   <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="modenlibrary.entity.User" useGeneratedKeys="true">
     <!--@mbg.generated-->
     insert into `user`
@@ -94,7 +111,7 @@
       <if test="username != null">
         username = #{username,jdbcType=VARCHAR},
       </if>
-      <if test="password != null">
+      <if test="password != null and password != ''">
         `password` = #{password,jdbcType=VARCHAR},
       </if>
       <if test="gender != null">
@@ -136,12 +153,25 @@
     and password=md5(#{password,jdbcType=VARCHAR})
   </select>
 
-  <select id="queryUser" parameterType="modenlibrary.entity.User" resultMap="BaseResultMap">
-    select <include refid="Base_Column_List"/>
+  <select id="queryUser" parameterType="modenlibrary.entity.User" resultMap="UserInfoResultMap" >
+    select
+    `user`.id,
+    `user`.username,
+    `user`.`password`,
+    `user`.gender,
+    `user`.isblack,
+    `user`.allow_lend,
+    `user`.isdel,
+    `user`.register_date,
+    role.role_id,
+    role.role_name,
+    role.role_desc
     from user
+    LEFT JOIN user_role ON `user`.id = user_role.user_id
+    LEFT JOIN role ON user_role.role_id = role.role_id
     <where>
       <if test="id != null">
-        id=#{id,jdbcType=INTEGER}
+        `user`.id=#{id,jdbcType=INTEGER}
       </if>
       <if test="username != null">
         and username=#{username,jdbcType=VARCHAR}
@@ -159,6 +189,7 @@
         and register_date=#{registerDate,jdbcType=TIMESTAMP}
       </if>
     </where>
+
   </select>
     <select id="selectByUserName" resultMap="BaseResultMap">
       select <include refid="Base_Column_List"/>
@@ -171,5 +202,9 @@
     set role_id=#{roleId,jdbcType=INTEGER}
     where user_id=#{id,jdbcType=INTEGER}
   </update>
+    <select id="getUserNum" resultType="java.lang.Integer">
+      select count(id)
+      from user
+    </select>
 
 </mapper>

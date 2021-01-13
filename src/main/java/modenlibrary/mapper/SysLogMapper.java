@@ -23,5 +23,5 @@ public interface SysLogMapper {
 
     List<SysLog> querByIp(String ip);
 
-    List<SysLog> queryAll();
+    List<SysLog> queryAll(Integer num);
 }

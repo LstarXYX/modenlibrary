@@ -37,6 +37,7 @@ import java.time.ZoneId;
  */
 @Controller
 @RequestMapping("/user")
+@CrossOrigin(originPatterns = "*",maxAge = 3600)
 public class UserController {
 
     @Autowired
@@ -104,15 +105,11 @@ public class UserController {
         if (id != 1){
             throw new BusinessException(ReturnCode.SYSTEM_ERROR);
         }
-        user = userService.selectByPrimaryKey(user.getId());
-        if (user==null){
-            throw new BusinessException(ReturnCode.SYSTEM_ERROR);
-        }
         return Result.success(user);
     }
 
     /**
-     * 根据id删除用户 假删除
+     * 根据id删除用户
      *
      * @param id
      * @return
@@ -126,12 +123,11 @@ public class UserController {
         if (user == null) {
             throw new BusinessException(ReturnCode.NOT_USER);
         }
-        user.setIsdel(Byte.valueOf("1"));
-        int ok = userService.updateByPrimaryKey(user);
+        int ok = userService.deleteByPrimaryKey(user.getId());
         if (ok!=1){
             throw new BusinessException(ReturnCode.SYSTEM_ERROR);
         }
-        return Result.success(user);
+        return Result.success("ok");
     }
 
     /**
@@ -155,6 +151,14 @@ public class UserController {
             if (!StrUtil.isBlankIfStr(user.getPassword())){
                 //对密码加密
                 user.setPassword(DigestUtils.md5DigestAsHex(user.getPassword().getBytes()));
+            }
+            //如果更改超级管理员密码且本身不是超级管理员
+            if (u.getId()!=111 && user.getId()==111){
+                return Result.fail(ReturnCode.AUTHOR_ERROR);
+            }
+//            如果也是管理员且不是本人 没有权限
+            if (userService.isAdmin(user.getId())&& !u.getId().equals(user.getId()) && u.getId()!=111){
+                return Result.fail(ReturnCode.AUTHOR_ERROR);
             }
             int ok = userService.updateByPrimaryKeySelective(user);
             if (ok==1){
@@ -189,6 +193,9 @@ public class UserController {
     @ResponseBody
     @RequiresPermissions("addblack")
     public ResultVo addBlack(@PathVariable("id")Integer id){
+        if (id==111){
+            return Result.fail(ReturnCode.AUTHOR_ERROR);
+        }
         User user = userService.selectByPrimaryKey(id);
         if (user==null){
             throw new BusinessException(ReturnCode.NOT_USER);
@@ -278,5 +285,14 @@ public class UserController {
         session.setAttribute("userInfo",user);
         return Result.success(user);
     }
+
+    @GetMapping("/blacklist")
+    @ResponseBody
+    @RequiresAuthentication
+    public PageResult blacklist(PageRequest pageRequest){
+        return PageUtils.getPageResult(pageRequest,blacklistService.list(pageRequest));
+    }
+
+
 
 }

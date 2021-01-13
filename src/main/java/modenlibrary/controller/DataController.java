@@ -9,8 +9,10 @@ import modenlibrary.Common.exception.BusinessException;
 import modenlibrary.Common.utils.RedisUtil;
 import modenlibrary.Common.utils.Result;
 import modenlibrary.Common.vo.ResultVo;
+import modenlibrary.entity.Category;
 import modenlibrary.service.DataService;
 import modenlibrary.service.SysLogService;
+import modenlibrary.service.UserService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -28,6 +33,7 @@ import java.util.Date;
 @Controller
 @RequestMapping("/data")
 @Slf4j
+@CrossOrigin(originPatterns = "*",maxAge = 3600)
 public class DataController {
 
     @Autowired
@@ -38,6 +44,7 @@ public class DataController {
 
     @Autowired
     private SysLogService sysLogService;
+
 
     private static final String KEY_LENDBOOKNUM = "LendBookNum";
 
@@ -84,7 +91,7 @@ public class DataController {
     }
 
     /**
-     * 查询某一月份所有的借书人数 默认本月
+     * 查询某一月份所有的借书人数
      *
      * @param YearMonth
      * @return
@@ -97,6 +104,19 @@ public class DataController {
             YearMonth = DateUtil.thisYear()+"-"+DateUtil.thisMonth()+1;
         }
         return Result.success(dataService.LendBookNumOfMonth(YearMonth));
+    }
+
+    /**
+     * 查询本月份所有的借书人数
+     *
+     * @return
+     */
+    @GetMapping("/lendbooknum/month/thismonth")
+    @ResponseBody
+    @RequiresRoles(value = {"普通管理员","超级管理员"},logical = Logical.OR)
+    public ResultVo lendNumOfThisMonth(){
+        String YearMonth = DateUtil.thisYear()+"-"+DateUtil.thisMonth()+1;
+        return Result.success(redisUtil.sGet(YearMonth));
     }
 
     /**
@@ -138,8 +158,103 @@ public class DataController {
     @GetMapping("/syslog/all")
     @ResponseBody
     @RequiresRoles("超级管理员")
-    public ResultVo syslogAll(){
-        return Result.success(sysLogService.queryAll());
+    public ResultVo syslogAll(@RequestParam(value = "num",defaultValue = "100",required = false)Integer num){
+        return Result.success(sysLogService.queryAll(num));
+    }
+
+    @GetMapping("/lendbooknum/today")
+    @ResponseBody
+    @RequiresRoles(value = {"超级管理员","普通管理员"},logical = Logical.OR)
+    public ResultVo todayNum(){
+        return Result.success(redisUtil.hget("LendBookNum"+DateUtil.thisMonth(),String.valueOf(DateUtil.thisDayOfMonth())));
+    }
+
+    /**
+     * 获取不同类别图书的数量
+     *
+     * @return
+     */
+    @GetMapping("/book/categoryNum")
+    @ResponseBody
+    @RequiresRoles(value = {"超级管理员","普通管理员"},logical = Logical.OR)
+    public ResultVo categoryNum(){
+        return Result.success(dataService.categoryNum());
+    }
+
+    /**
+     * 不同类型书本的借书人数
+     *
+     * @return
+     */
+    @GetMapping("/book/categoryLendNum")
+    @ResponseBody
+    @RequiresRoles(value = {"超级管理员","普通管理员"},logical = Logical.OR)
+    public ResultVo categoryLendNum(){
+        return Result.success(dataService.categoryLendNum());
+    }
+
+    /**
+     * 男女生借书人数情况
+     *
+     * @return
+     */
+    @GetMapping("/lendbooknum/gender")
+    @ResponseBody
+    @RequiresRoles(value = {"超级管理员","普通管理员"},logical = Logical.OR)
+    public ResultVo lendbooknumgender(){
+        return Result.success(dataService.LendBookNumOfGender());
+    }
+
+    /**
+     * 用户数量
+     */
+    @GetMapping("/usernum")
+    @ResponseBody
+    @RequiresRoles(value = {"超级管理员","普通管理员"},logical = Logical.OR)
+    public ResultVo usernum(){
+        return Result.success(dataService.getUserNum());
+    }
+
+    /**
+     * 后台主页返回数据 一次传输
+     * 不用请求多个接口
+     *
+     * @return
+     */
+    @GetMapping("/main")
+    @ResponseBody
+    @RequiresRoles(value = {"超级管理员","普通管理员"},logical = Logical.OR)
+    public ResultVo mainIndex(){
+//        存放返回数据
+        Map<String,Object>res = new HashMap<>();
+        //获取用户人数
+        res.put("userNum",dataService.getUserNum());
+        //本月借书人数
+        res.put("lendBookNumThisMonth",dataService.LendBookNumOfMonth(DateUtil.thisYear()+"-"+DateUtil.thisMonth()+1));
+        //男女生借书人数
+        res.put("genderlist",dataService.LendBookNumOfGender());
+        //不同书本类别图书数据
+        res.put("categoryNum",dataService.categoryNum());
+        //当天借书人数
+        res.put("lendBookNumToday",redisUtil.hget("LendBookNum"+DateUtil.thisMonth(),String.valueOf(DateUtil.thisDayOfMonth())));
+        //近五个月的借书人数 yyyy-mm
+        String from,to;
+        //到这个月的
+        to = DateUtil.thisYear()+"-"+DateUtil.thisMonth()+1;
+        int mon = DateUtil.thisMonth()+1;
+        int yea = DateUtil.thisYear();
+        mon -= 5;
+        if (mon<=0){
+            mon = mon==0?12:12+mon;
+            yea -= 1;
+        }
+        if ((mon+"").length()==1){
+            from = yea+"-0"+mon;
+        }else{
+            from = yea+"-"+mon;
+        }
+        res.put("rangeMonth",dataService.LendBookNumOfRangeMonth(from,to));
+        return Result.success(res);
     }
 
 

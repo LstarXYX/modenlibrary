@@ -21,5 +21,5 @@ public interface SysLogService{
 
     List<SysLog> queryByIp(String ip);
 
-    List<SysLog> queryAll();
+    List<SysLog> queryAll(Integer num);
 }

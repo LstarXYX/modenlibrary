@@ -7,6 +7,8 @@ import modenlibrary.entity.Book;
 import modenlibrary.entity.User;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Map;
+
 /**
  * @author  L.star
  * @date 2020/12/23 16:08
@@ -35,4 +37,6 @@ public interface BookService{
     Book addBook(Book book, MultipartFile file);
 
     Book updateBook(Book book, MultipartFile file);
+
+    Map<String, Integer> categoryNum();
 }

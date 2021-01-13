@@ -9,9 +9,7 @@ import modenlibrary.service.UserService;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 超级管理员api
@@ -20,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  */
 @Controller
 @RequestMapping("/admin")
+@CrossOrigin(originPatterns = "*",maxAge = 3600)
 public class AdminController {
 
     @Autowired
@@ -32,6 +31,7 @@ public class AdminController {
      */
     @GetMapping("/add/{id}")
     @Operation("/添加管理员")
+    @ResponseBody
     @RequiresRoles("超级管理员")
     public ResultVo addAdmin(@PathVariable("id")Integer id){
         int ok = userService.changeRole(id, RoleEnum.ADMIN.getRoleid());
@@ -41,4 +41,24 @@ public class AdminController {
             return Result.fail(ReturnCode.SYSTEM_ERROR);
         }
     }
+
+    /**
+     * 移除管理员
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping("/remove/{id}")
+    @Operation("/移除管理员")
+    @ResponseBody
+    @RequiresRoles("超级管理员")
+    public ResultVo removeAdmin(@PathVariable("id")Integer id){
+        int ok = userService.changeRole(id,RoleEnum.READER.getRoleid());
+        if (ok==1){
+            return Result.success("ok");
+        }else {
+            return Result.fail(ReturnCode.SYSTEM_ERROR);
+        }
+    }
+
 }

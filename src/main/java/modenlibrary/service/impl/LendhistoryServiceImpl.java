@@ -10,7 +10,9 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.sql.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author L.star
@@ -63,5 +65,53 @@ public class LendhistoryServiceImpl implements LendhistoryService {
     @Override
     public List<RangeResult> countRangeMonth(String from, String to) {
         return lendhistoryMapper.countRangeMonth(from,to);
+    }
+
+    /**
+     * 查询男女生借书人数
+     *
+     * @return
+     */
+    @Override
+    public Map<String, Integer> LendBookNumOfGender() {
+        Map<String, Integer>map = new HashMap<>();
+        List<Map<Object, Object>>list = lendhistoryMapper.LendBoookNumOfGender();
+        for (Map<Object, Object> stringObjectMap : list) {
+            String gender = null;
+            Integer num = 0;
+            for(Map.Entry<Object,Object>entry : stringObjectMap.entrySet()){
+                if ("gender".equals(String.valueOf(entry.getKey()))){
+                    gender = Integer.parseInt(entry.getValue()+"")==1?"男":"女";
+                }else if ("num".equals(entry.getKey())){
+                    num = Integer.parseInt((entry.getValue() + ""));
+                }
+                map.put(gender,num);
+            }
+        }
+        return map;
+    }
+
+    /**
+     * 不同类型书本的借书人数
+     * @return
+     */
+    @Override
+    public Map<String, Integer> categoryLendNum() {
+        Map<String, Integer>map = new HashMap<>();
+        List<Map<String, Object>>list = lendhistoryMapper.categoryLendNum();
+        for (Map<String, Object> stringObjectMap : list) {
+            String cname = null;
+            Integer num = 0;
+            for(Map.Entry<String,Object>entry : stringObjectMap.entrySet()){
+                if ("c_name".equals(entry.getKey())){
+                    cname = (String) entry.getValue();
+                }else if ("num".equals(entry.getKey())){
+                    num = Integer.parseInt((entry.getValue() + ""));
+                }
+                map.put(cname,num);
+            }
+        }
+        map.remove(null);
+        return map;
     }
 }

@@ -49,5 +49,9 @@
   <delete id="del">
     delete from blacklist where uid=#{id,jdbcType=INTEGER}
   </delete>
+    <select id="list" resultMap="BaseResultMap">
+      select <include refid="Base_Column_List"/>
+      from blacklist
+    </select>
 
 </mapper>

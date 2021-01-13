@@ -1,7 +1,10 @@
 package modenlibrary.controller;
 
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.StrUtil;
 import modenlibrary.Common.code.ReturnCode;
 import modenlibrary.Common.exception.BusinessException;
+import modenlibrary.Common.utils.RedisUtil;
 import modenlibrary.Common.utils.Result;
 import modenlibrary.Common.vo.ResultVo;
 import modenlibrary.anno.Operation;
@@ -20,6 +23,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 登录
@@ -27,6 +32,7 @@ import javax.servlet.http.HttpSession;
  * @date 2020/12/23 16:26
  */
 @Controller
+@CrossOrigin(originPatterns = "*",maxAge = 3600)
 public class LoginController {
 
     private static Logger logger = LoggerFactory.getLogger(LoginController.class);
@@ -41,6 +47,9 @@ public class LoginController {
     public String not_auth(){
         return "/403.html";
     }
+
+    @Autowired
+    private RedisUtil redisUtil;
 
     /**
      * 未登录返回
@@ -77,12 +86,6 @@ public class LoginController {
         if (subject==null){
             throw new BusinessException(ReturnCode.SYSTEM_ERROR);
         }
-//        User user = userService.login(id, password);
-//        if (user != null) {
-//            session.setAttribute("userInfo",user);
-//        }else {
-//            throw new BusinessException(ReturnCode.LOGIN_ERROR);
-//        }
         try {
             subject.login(token);
         }catch (Exception e){
@@ -96,20 +99,40 @@ public class LoginController {
 
     @PostMapping(value = "/adminlogin")
     @ResponseBody
-    public ResultVo adminlogin(Integer id, String password, HttpSession session){
-        if (StringUtils.isEmpty(id)||StringUtils.isEmpty(password)){
+    @Operation("管理员登录")
+    public ResultVo adminlogin(String username, String password, HttpSession session){
+        if (StrUtil.isBlankIfStr(username) ||StrUtil.isBlankIfStr(password)){
             throw new BusinessException(ReturnCode.LOGIN_ERROR);
         }
-        User user = userService.loginAdmin(id, password);
-        if (user != null) {
-            //不为空 代表管理员
-            session.setAttribute("userInfo",user);
-        }else {
-            throw new BusinessException(ReturnCode.LOGIN_ERROR);
+        UsernamePasswordToken token = new UsernamePasswordToken(username, password);
+        Subject subject = SecurityUtils.getSubject();
+        if(subject==null){
+            throw new BusinessException(ReturnCode.SYSTEM_ERROR);
         }
+        try {
+            subject.login(token);
+        }catch (Exception e){
+            throw new BusinessException(ReturnCode.SYSTEM_ERROR);
+        }
+        User user = (User) subject.getSession().getAttribute("userInfo");
+        Boolean isAdmin = userService.isAdmin(user.getId());
+        if (!isAdmin){
+            return Result.fail(ReturnCode.AUTHOR_ERROR);
+        }
+        Role role = roleService.selectByUserId(user.getId());
         logger.info("管理员登录");
-        return Result.success(user);
+        Map<String, Object>map = new HashMap<>();
+        map.put("userInfo",user);
+        map.put("role",role);
+        return Result.success(map);
     }
 
+    @GetMapping("/logout")
+    @ResponseBody
+    public ResultVo logout(){
+        Subject subject = SecurityUtils.getSubject();
+        subject.logout();
+        return Result.success("ok");
+    }
 
 }

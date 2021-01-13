@@ -38,5 +38,24 @@
         GROUP BY MONTH(cdate)
         ORDER BY cdate asc
     </select>
+    <select id="LendBoookNumOfGender" resultType="java.util.Map">
+        select gender,count(gender) as num
+        from user
+        WHERE id in(
+            SELECT DISTINCT uid from lend_list
+        )
+        GROUP BY gender
+    </select>
+    <select id="categoryLendNum" resultType="java.util.Map">
+        SELECT
+            category.c_name,
+            count(book.category_id) as num
+        FROM
+            lend_list
+                left JOIN book ON lend_list.isbn = book.isbn
+                right JOIN category ON book.category_id = category.id
+        GROUP BY
+            category.c_name
+    </select>
 
 </mapper>

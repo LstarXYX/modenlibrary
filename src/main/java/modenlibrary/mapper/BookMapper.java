@@ -3,6 +3,7 @@ package modenlibrary.mapper;
 import modenlibrary.entity.Book;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author  L.star
@@ -22,4 +23,6 @@ public interface BookMapper {
     int updateByPrimaryKey(Book record);
 
     List<Book> queryAll(Book book);
+
+    List<Map<String, Object>> categoryNum();
 }

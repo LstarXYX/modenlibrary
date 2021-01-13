@@ -1,5 +1,7 @@
 package modenlibrary.service;
 
+import com.github.pagehelper.PageInfo;
+import modenlibrary.Common.vo.PageRequest;
 import modenlibrary.entity.Blacklist;
     /**
  * @author  L.star
@@ -13,4 +15,6 @@ public interface BlacklistService{
     int insertSelective(Blacklist record);
 
     int del(Integer id);
+
+    PageInfo<Blacklist> list(PageRequest pageRequest);
     }

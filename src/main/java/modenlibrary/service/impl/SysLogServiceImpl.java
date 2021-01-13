@@ -50,11 +50,15 @@ public class SysLogServiceImpl implements SysLogService{
     }
 
     /**
-     * 所有的操作记录 100条
+     * 所有的操作记录 默认100条
      * @return
      */
     @Override
-    public List<SysLog> queryAll() {
-        return sysLogMapper.queryAll();
+    public List<SysLog> queryAll(Integer num) {
+        if (num!=null && num>0){
+            return sysLogMapper.queryAll(num);
+        }else {
+            return sysLogMapper.queryAll(100);
+        }
     }
 }
