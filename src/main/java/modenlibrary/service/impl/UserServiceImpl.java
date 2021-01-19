@@ -14,6 +14,8 @@ import javax.annotation.Resource;
 import modenlibrary.mapper.UserMapper;
 import modenlibrary.entity.User;
 import modenlibrary.service.UserService;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -40,6 +42,7 @@ public class UserServiceImpl implements UserService{
      * @param record
      * @return
      */
+    @Transactional
     @Override
     public int insert(User record) {
         int ok = userMapper.insert(record);

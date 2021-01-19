@@ -29,6 +29,8 @@ import javax.annotation.Resource;
 import modenlibrary.mapper.BookMapper;
 import modenlibrary.entity.Book;
 import modenlibrary.service.BookService;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ResourceUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -73,10 +75,12 @@ public class BookServiceImpl implements BookService {
         return bookMapper.deleteByPrimaryKey(isbn);
     }
 
+
     @Override
     public int insert(Book record) {
         return bookMapper.insert(record);
     }
+
 
     @Override
     public int insertSelective(Book record) {
@@ -111,6 +115,7 @@ public class BookServiceImpl implements BookService {
      * @param user
      * @return
      */
+    @Transactional
     @Override
     public void lendBook(User user, String isbn) {
         //如果未登录或者黑名单 抛出异常
@@ -166,6 +171,7 @@ public class BookServiceImpl implements BookService {
      * @param status
      * @return
      */
+    @Transactional
     @Override
     public Boolean returnedBook(User user, String isbn, BookStatus status) {
         //书本
@@ -216,6 +222,7 @@ public class BookServiceImpl implements BookService {
      * @param book
      * @param file
      */
+    @Transactional
     @Override
     public Book addBook(Book book, MultipartFile file) {
         if (bookMapper.selectByPrimaryKey(book.getIsbn()) != null) {
@@ -288,6 +295,7 @@ public class BookServiceImpl implements BookService {
      * @param file
      * @return
      */
+    @Transactional
     @Override
     public Book updateBook(Book book, MultipartFile file) {
         logger.info("接收到的book------"+book.toString());

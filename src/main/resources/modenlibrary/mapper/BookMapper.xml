@@ -7,6 +7,7 @@
     <id column="isbn" jdbcType="VARCHAR" property="isbn" />
     <result column="title" jdbcType="VARCHAR" property="title" />
     <result column="author" jdbcType="VARCHAR" property="author" />
+    <result column="publisher" jdbcType="VARCHAR" property="publisher" />
     <result column="publish_date" jdbcType="TIMESTAMP" property="publishDate" />
     <result column="category_id" jdbcType="INTEGER" property="categoryId" />
     <result column="price" jdbcType="DECIMAL" property="price" />
@@ -18,6 +19,7 @@
     <id column="isbn" jdbcType="VARCHAR" property="isbn" />
     <result column="title" jdbcType="VARCHAR" property="title" />
     <result column="author" jdbcType="VARCHAR" property="author" />
+    <result column="publisher" jdbcType="VARCHAR" property="publisher" />
     <result column="publish_date" jdbcType="TIMESTAMP" property="publishDate" />
     <result column="category_id" jdbcType="INTEGER" property="categoryId" />
     <result column="price" jdbcType="DECIMAL" property="price" />
@@ -30,7 +32,7 @@
 
   <sql id="Base_Column_List">
     <!--@mbg.generated-->
-    isbn, title, author, publish_date, category_id, price, description, book_num, img_path
+    isbn, title, author,publisher,publish_date, category_id, price, description, book_num, img_path
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
     <!--@mbg.generated-->
@@ -46,11 +48,11 @@
   </delete>
   <insert id="insert" parameterType="modenlibrary.entity.Book">
     <!--@mbg.generated-->
-    insert into book (isbn, title, author, 
+    insert into book (isbn, title, author,publisher,
       publish_date, category_id, price, 
       description, book_num, img_path
       )
-    values (#{isbn,jdbcType=VARCHAR}, #{title,jdbcType=VARCHAR}, #{author,jdbcType=VARCHAR}, 
+    values (#{isbn,jdbcType=VARCHAR}, #{title,jdbcType=VARCHAR}, #{author,jdbcType=VARCHAR}, #{publisher,jdbcType=VARCHAR}
       #{publishDate,jdbcType=TIMESTAMP}, #{categoryId,jdbcType=INTEGER}, #{price,jdbcType=DECIMAL}, 
       #{description,jdbcType=LONGVARCHAR}, #{bookNum,jdbcType=INTEGER}, #{imgPath,jdbcType=VARCHAR}
       )
@@ -67,6 +69,9 @@
       </if>
       <if test="author != null">
         author,
+      </if>
+      <if test="publisher != null and publisher != ''">
+        publisher,
       </if>
       <if test="publishDate != null">
         publish_date,
@@ -96,6 +101,9 @@
       </if>
       <if test="author != null">
         #{author,jdbcType=VARCHAR},
+      </if>
+      <if test="publisher != null and publisher != ''">
+        #{publisher,jdbcType=VARCHAR},
       </if>
       <if test="publishDate != null">
         #{publishDate,jdbcType=TIMESTAMP},
@@ -127,6 +135,9 @@
       <if test="author != null and author !=''">
         author = #{author,jdbcType=VARCHAR},
       </if>
+      <if test="publisher != null and publisher != ''">
+        publisher = #{publisher,jdbcType=VARCHAR},
+      </if>
       <if test="publishDate != null">
         publish_date = #{publishDate,jdbcType=TIMESTAMP},
       </if>
@@ -154,6 +165,7 @@
     update book
     set title = #{title,jdbcType=VARCHAR},
       author = #{author,jdbcType=VARCHAR},
+      publisher = #{publisher,jdbcType=VARCHAR},
       publish_date = #{publishDate,jdbcType=TIMESTAMP},
       category_id = #{categoryId,jdbcType=INTEGER},
       price = #{price,jdbcType=DECIMAL},
@@ -175,6 +187,9 @@
       </if>
       <if test="author != null and author != ''">
         and author=#{author,jdbcType=VARCHAR}
+      </if>
+      <if test="publisher != null and publisher != ''">
+        and publisher = #{publisher,jdbcType=VARCHAR}
       </if>
       <if test="description != null and description != ''">
         and description like concat('%',#{description,jdbcType=VARCHAR},'%')

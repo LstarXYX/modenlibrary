@@ -40,15 +40,18 @@ public class ScheduledTask {
         int num = 0;
         int pastday = DateUtil.yesterday().dayOfMonth();
         int pastmonth = DateUtil.thisMonth()+1;
+        Object obj = null;
         if (DateUtil.thisDayOfMonth()==1){
             //如果今天是一号 那么昨天是上个月
             pastmonth -= 1;
             if (pastmonth == 0){
                 pastmonth = 12;
             }
+            //获取昨天的人数
+            obj = redisUtil.hget("LendBookNum"+pastmonth, String.valueOf(pastday));
+        }else {
+            obj = redisUtil.hget("LendBookNum"+DateUtil.thisMonth()+1, String.valueOf(pastday));
         }
-        //获取昨天的人数
-        Object obj = redisUtil.hget("LendBookNum"+pastmonth, String.valueOf(pastday));
         if (obj != null){
             num = (int)obj;
         }

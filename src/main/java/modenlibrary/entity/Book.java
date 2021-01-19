@@ -65,6 +65,11 @@ public class Book implements Serializable {
     */
     private String imgPath;
 
+    /**
+     * 出版社
+     */
+    private String publisher;
+
 
 
     private static final long serialVersionUID = 1L;

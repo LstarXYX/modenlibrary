@@ -8,6 +8,8 @@ import javax.annotation.Resource;
 import modenlibrary.mapper.LendListMapper;
 import modenlibrary.entity.LendList;
 import modenlibrary.service.LendListService;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -21,11 +23,13 @@ public class LendListServiceImpl implements LendListService{
     @Resource
     private LendListMapper lendListMapper;
 
+    @Transactional
     @Override
     public int insert(LendList record) {
         return lendListMapper.insert(record);
     }
 
+    @Transactional
     @Override
     public int insertSelective(LendList record) {
         return lendListMapper.insertSelective(record);

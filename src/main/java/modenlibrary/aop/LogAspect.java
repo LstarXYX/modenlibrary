@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.lang.reflect.Method;
 
@@ -87,10 +88,36 @@ public class LogAspect {
         sysLog.setUid(user.getId());
 
         //获取请求的ip地址
-        String ipaddr = ServletUtil.getClientIP(attr.getRequest());
+        String ipaddr = getClientIP(attr.getRequest());
         sysLog.setIp(ipaddr);
 
         sysLogService.insert(sysLog);
+    }
+
+    /***
+     * 获取客户端IP地址;这里通过了Nginx获取;X-Real-IP,
+     * @param request
+     * @return
+     */
+    private String getClientIP(HttpServletRequest request) {
+        String ip = request.getHeader("x-forwarded-for");
+        String unknown = "unknown";
+        if (ip == null || ip.length() == 0 || unknown.equalsIgnoreCase(ip)) {
+            ip = request.getHeader("Proxy-Client-IP");
+        }
+        if (ip == null || ip.length() == 0 || unknown.equalsIgnoreCase(ip)) {
+            ip = request.getHeader("WL-Proxy-Client-IP");
+        }
+        if (ip == null || ip.length() == 0 || unknown.equalsIgnoreCase(ip)) {
+            ip = request.getHeader("HTTP_CLIENT_IP");
+        }
+        if (ip == null || ip.length() == 0 || unknown.equalsIgnoreCase(ip)) {
+            ip = request.getHeader("HTTP_X_FORWARDED_FOR");
+        }
+        if (ip == null || ip.length() == 0 || unknown.equalsIgnoreCase(ip)) {
+            ip = request.getRemoteAddr();
+        }
+        return ip;
     }
 
 

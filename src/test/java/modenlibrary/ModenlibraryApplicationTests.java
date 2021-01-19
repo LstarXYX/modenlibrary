@@ -72,4 +72,36 @@ class ModenlibraryApplicationTests {
 //        log.info("昨天的人数添加完成--------人数是："+num);
 //    }
 
+
+//    @Test
+//    public void task1Test(){
+//        int num = 0;
+//        int pastday = DateUtil.yesterday().dayOfMonth();
+//        log.info("yesterday---"+pastday);
+//        int pastmonth = DateUtil.thisMonth()+1;
+//        log.info("thisMonth---"+pastmonth);
+//        if (DateUtil.thisDayOfMonth()==1){
+//            //如果今天是一号 那么昨天是上个月
+//            pastmonth -= 1;
+//            if (pastmonth == 0){
+//                pastmonth = 12;
+//            }
+//        }
+//        log.info("thisMonth---"+pastmonth);
+//        //获取昨天的人数
+//        Object obj = redisUtil.hget("LendBookNum"+pastmonth, String.valueOf(pastday));
+//        if (obj != null){
+//            num = (int)obj;
+//        }
+//        log.info("num---"+num);
+//        Lendhistory yesterday = Lendhistory.builder()
+//                .cdate(DateUtil.yesterday())
+//                .people(num).build();
+//        //把昨天的借阅人数添加进去
+//        lendhistoryService.insert(yesterday);
+////        把昨天的记录删除掉
+//        redisUtil.del("LendBookNum"+pastmonth,String.valueOf(pastday));
+//        log.info("昨天的人数添加完成--------人数是："+num);
+//    }
+
 }

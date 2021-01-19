@@ -166,7 +166,7 @@ public class DataController {
     @ResponseBody
     @RequiresRoles(value = {"超级管理员","普通管理员"},logical = Logical.OR)
     public ResultVo todayNum(){
-        return Result.success(redisUtil.hget("LendBookNum"+DateUtil.thisMonth(),String.valueOf(DateUtil.thisDayOfMonth())));
+        return Result.success(redisUtil.hget("LendBookNum"+DateUtil.thisMonth()+1,String.valueOf(DateUtil.thisDayOfMonth())));
     }
 
     /**
@@ -236,7 +236,7 @@ public class DataController {
         //不同书本类别图书数据
         res.put("categoryNum",dataService.categoryNum());
         //当天借书人数
-        res.put("lendBookNumToday",redisUtil.hget("LendBookNum"+DateUtil.thisMonth(),String.valueOf(DateUtil.thisDayOfMonth())));
+        res.put("lendBookNumToday",redisUtil.hget("LendBookNum"+DateUtil.thisMonth()+1,String.valueOf(DateUtil.thisDayOfMonth())));
         //近五个月的借书人数 yyyy-mm
         String from,to;
         //到这个月的
