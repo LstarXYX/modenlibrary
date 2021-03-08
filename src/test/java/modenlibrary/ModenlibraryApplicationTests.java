@@ -4,10 +4,13 @@ import cn.hutool.core.date.DateUtil;
 import lombok.extern.slf4j.Slf4j;
 import modenlibrary.Common.utils.RedisUtil;
 import modenlibrary.entity.Lendhistory;
+import modenlibrary.service.DataService;
 import modenlibrary.service.LendhistoryService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.util.Map;
 
 @SpringBootTest
 @Slf4j
@@ -102,6 +105,18 @@ class ModenlibraryApplicationTests {
 ////        把昨天的记录删除掉
 //        redisUtil.del("LendBookNum"+pastmonth,String.valueOf(pastday));
 //        log.info("昨天的人数添加完成--------人数是："+num);
+//    }
+
+//
+//    @Autowired
+//    private DataService dataService;
+//
+//    @Test
+//    public void testBoysAndGirlsNum(){
+//        Map<String, Integer> map = dataService.LendBookNumOfGender();
+//        for(Map.Entry entry : map.entrySet()){
+//            System.out.println("key--"+entry.getKey()+",value---"+entry.getValue());
+//        }
 //    }
 
 }

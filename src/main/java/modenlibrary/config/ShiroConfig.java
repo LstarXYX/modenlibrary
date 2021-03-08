@@ -47,6 +47,7 @@ public class ShiroConfig {
         //自定义拦截器
 //        shiroFilterFactoryBean.getFilters().put("authc",new SimpleFormAuthenticationFilter());
         Map<String, String> filterChainDefinitionMap = new LinkedHashMap<>();
+        filterChainDefinitionMap.put("/code","anon");
         filterChainDefinitionMap.put("/logout", "logout");
         filterChainDefinitionMap.put("/login", "anon");
         filterChainDefinitionMap.put("/index", "anon");

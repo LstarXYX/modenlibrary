@@ -123,7 +123,7 @@ public class DataServiceImpl implements DataService {
             //数据库查找
             map = lendhistoryService.LendBookNumOfGender();
             for (Map.Entry<String, Integer>entry:map.entrySet()){
-                if (entry.getKey().equals("男")){
+                if ("男".equals(entry.getKey())){
                     redisUtil.hset("lendbooknumgender","男",entry.getValue());
                 }else {
                     redisUtil.hset("lendbooknumgender","女",entry.getValue());

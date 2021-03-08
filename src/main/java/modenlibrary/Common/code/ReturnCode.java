@@ -20,6 +20,7 @@ public enum ReturnCode implements IReturnCode{
     BOOK_UNKNOWN(204,"该书不存在"),
     USERNAME_HAS_SAME(206,"用户名已存在"),
     CAN_NOT_LEND(205,"不能借书"),
+    CODE_ERROR(209,"验证码错误"),
     NOT_USER(301,"查无此人"),
     NOT_LEND_LIST(302,"没有此借书记录"),
     IMG_TYPE_ERROR(303,"图片格式错误"),
