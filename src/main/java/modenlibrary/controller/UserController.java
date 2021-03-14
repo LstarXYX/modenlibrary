@@ -1,8 +1,13 @@
 package modenlibrary.controller;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateTime;
+import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.DigestUtil;
+import cn.hutool.poi.excel.ExcelUtil;
+import cn.hutool.poi.excel.ExcelWriter;
+import lombok.extern.slf4j.Slf4j;
 import modenlibrary.Common.code.ReturnCode;
 import modenlibrary.Common.eum.RoleEnum;
 import modenlibrary.Common.exception.BusinessException;
@@ -18,18 +23,28 @@ import modenlibrary.service.BlacklistService;
 import modenlibrary.service.LendListService;
 import modenlibrary.service.RoleService;
 import modenlibrary.service.UserService;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
 import java.sql.Date;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author L.star
@@ -38,6 +53,7 @@ import java.time.ZoneId;
 @Controller
 @RequestMapping("/user")
 @CrossOrigin(originPatterns = "*",maxAge = 3600)
+@Slf4j
 public class UserController {
 
     @Autowired
@@ -293,6 +309,52 @@ public class UserController {
         return PageUtils.getPageResult(pageRequest,blacklistService.list(pageRequest));
     }
 
+    @GetMapping("/excel")
+    @RequiresRoles(value = {"超级管理员","普通管理员"},logical = Logical.OR)
+    public void getExcelTemplate(HttpServletResponse response){
+        ExcelWriter writer = ExcelUtil.getWriter();
+        Map<String, Object>row = new LinkedHashMap<>();
+        row.put("用户名", "需要唯一,密码同用户名");
+        row.put("性别","男生填1 女生填0");
+        ArrayList<Map<String, Object>>rows = CollUtil.newArrayList(row);
+        // 一次性写出内容，使用默认样式，强制输出标题
+        writer.write(rows,false);
+        response.setContentType("application/vnd.ms-excel;charset=utf-8");
+        //test.xls是弹出下载对话框的文件名，不能为中文，中文请自行编码
+        response.setHeader("Content-Disposition","attachment;filename=Template.xls");
+        ServletOutputStream outputStream = null;
+        try {
+            outputStream = response.getOutputStream();
+            writer.flush(outputStream,true);
+            //close
+            writer.close();
+            IoUtil.close(outputStream);
+        } catch (IOException e) {
+            log.error("Excel下载错误!");
+            e.printStackTrace();
+        }finally {
+            writer.close();
+            if (outputStream!=null){
+                IoUtil.close(outputStream);
+            }
+        }
+    }
 
+    /**
+     * 接收用户上传的Excel文件 实现批量添加用户
+     * todo:无法接收file文件
+     * @param file excel文件
+     * @return ResultVo
+     */
+    @PostMapping("/excel")
+    @RequiresRoles(value = {"超级管理员","普通管理员"},logical = Logical.OR)
+    @Operation("导入用户Excel文件")
+    public ResultVo uploadExcel(MultipartFile file){
+        if (file==null||file.isEmpty()){
+            return Result.fail(ReturnCode.FORM_ERROR);
+        }
+        System.out.println(file.getContentType());
+        return Result.success(null);
+    }
 
 }

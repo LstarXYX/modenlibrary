@@ -61,8 +61,15 @@
             <artifactId>hutool-all</artifactId>
             <version>5.5.4</version>
         </dependency>
+<!--        poi-->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>4.1.2</version>
+        </dependency>
 
-<!--        JSP相关-->
+
+        <!--        JSP相关-->
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
