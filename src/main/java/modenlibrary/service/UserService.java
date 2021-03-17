@@ -4,6 +4,7 @@ import com.github.pagehelper.PageInfo;
 import modenlibrary.Common.vo.PageRequest;
 import modenlibrary.entity.User;
 import modenlibrary.entity.Vo.UserInfo;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -51,4 +52,7 @@ public interface UserService{
     int changeRole(Integer id,Integer roleId);
 
     Integer getUserNum();
+
+    void insertUsers(MultipartFile file);
+
 }

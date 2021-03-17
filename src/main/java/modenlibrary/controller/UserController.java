@@ -309,16 +309,20 @@ public class UserController {
         return PageUtils.getPageResult(pageRequest,blacklistService.list(pageRequest));
     }
 
+    /**
+     * 提供下载Excel模板文件
+     * @param response
+     */
     @GetMapping("/excel")
     @RequiresRoles(value = {"超级管理员","普通管理员"},logical = Logical.OR)
     public void getExcelTemplate(HttpServletResponse response){
         ExcelWriter writer = ExcelUtil.getWriter();
         Map<String, Object>row = new LinkedHashMap<>();
-        row.put("用户名", "需要唯一,密码同用户名");
-        row.put("性别","男生填1 女生填0");
+        row.put("username", "需要唯一,密码同用户名");
+        row.put("gender","男/女 第一行不变");
         ArrayList<Map<String, Object>>rows = CollUtil.newArrayList(row);
         // 一次性写出内容，使用默认样式，强制输出标题
-        writer.write(rows,false);
+        writer.write(rows,true);
         response.setContentType("application/vnd.ms-excel;charset=utf-8");
         //test.xls是弹出下载对话框的文件名，不能为中文，中文请自行编码
         response.setHeader("Content-Disposition","attachment;filename=Template.xls");
@@ -331,7 +335,6 @@ public class UserController {
             IoUtil.close(outputStream);
         } catch (IOException e) {
             log.error("Excel下载错误!");
-            e.printStackTrace();
         }finally {
             writer.close();
             if (outputStream!=null){
@@ -350,10 +353,7 @@ public class UserController {
     @RequiresRoles(value = {"超级管理员","普通管理员"},logical = Logical.OR)
     @Operation("导入用户Excel文件")
     public ResultVo uploadExcel(MultipartFile file){
-        if (file==null||file.isEmpty()){
-            return Result.fail(ReturnCode.FORM_ERROR);
-        }
-        System.out.println(file.getContentType());
+        userService.insertUsers(file);
         return Result.success(null);
     }
 

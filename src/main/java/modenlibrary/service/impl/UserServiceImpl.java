@@ -1,13 +1,18 @@
 package modenlibrary.service.impl;
 
+import cn.hutool.poi.excel.ExcelReader;
+import cn.hutool.poi.excel.ExcelUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import lombok.extern.slf4j.Slf4j;
 import modenlibrary.Common.code.ReturnCode;
 import modenlibrary.Common.eum.RoleEnum;
 import modenlibrary.Common.exception.BusinessException;
+import modenlibrary.Common.utils.Result;
 import modenlibrary.Common.vo.PageRequest;
 import modenlibrary.entity.Role;
 import modenlibrary.entity.Vo.UserInfo;
+import modenlibrary.entity.Vo.UserTemplateVo;
 import modenlibrary.mapper.RoleMapper;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
@@ -16,7 +21,9 @@ import modenlibrary.entity.User;
 import modenlibrary.service.UserService;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -24,6 +31,7 @@ import java.util.List;
  * @date 2020/12/23 16:08
  */
 @Service
+@Slf4j
 public class UserServiceImpl implements UserService{
 
     @Resource
@@ -31,6 +39,8 @@ public class UserServiceImpl implements UserService{
 
     @Resource
     private RoleMapper roleMapper;
+    //文件限制大小 单位m
+    private static final Integer FILE_LIMIT_SIZE = 10;
 
     @Override
     public int deleteByPrimaryKey(Integer id) {
@@ -131,5 +141,44 @@ public class UserServiceImpl implements UserService{
     @Override
     public Integer getUserNum() {
         return userMapper.getUserNum();
+    }
+
+    /**
+     * 批量添加学生
+     * @param file 传过来的Excel文件 必须
+     */
+    @Override
+    public void insertUsers(MultipartFile file) {
+        if (file==null||file.isEmpty()){
+            throw new BusinessException(ReturnCode.FORM_ERROR);
+        }
+        String originalFilename = file.getOriginalFilename();
+        String fileTypeName = originalFilename.substring(originalFilename.lastIndexOf(".")+1);
+        //文件类型判断
+        if (!"xls".equals(fileTypeName)){
+            throw new BusinessException(ReturnCode.FILE_TYPE_ERROR);
+        }
+        if(!"application/vnd.ms-excel".equals(file.getContentType()))
+        {
+            throw new BusinessException(ReturnCode.FILE_TYPE_ERROR);
+        }
+        //文件大小判断
+        if (file.getSize()/1024/1024 > FILE_LIMIT_SIZE){
+            throw new BusinessException(ReturnCode.FILE_TOO_BIG);
+        }
+        //解析
+        try {
+            ExcelReader reader = ExcelUtil.getReader(file.getInputStream());
+            List<UserTemplateVo> userTemplateVos = reader.readAll(UserTemplateVo.class);
+            if (userTemplateVos.size()>0){
+                userTemplateVos.forEach(e->{
+                    User convert = e.convert();
+                    userMapper.insert(convert);
+                    userMapper.addReaderRole(convert.getId());
+                });
+            }
+        } catch (IOException e) {
+            log.error("文件读取错误");
+        }
     }
 }

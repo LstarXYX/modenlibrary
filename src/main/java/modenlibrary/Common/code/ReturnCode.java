@@ -25,7 +25,8 @@ public enum ReturnCode implements IReturnCode{
     NOT_LEND_LIST(302,"没有此借书记录"),
     IMG_TYPE_ERROR(303,"图片格式错误"),
     IMG_BLANK_ERROR(304,"图片为空错误"),
-    IMG_TOO_BIG(305,"图片大小错误"),
+    FILE_TYPE_ERROR(305,"文件格式错误"),
+    FILE_TOO_BIG(306,"文件太大了"),
     REDIS_DELTA_ERROR(500,"递增因子错误"),
     REDIS_ERROR(501,"Redis错误"),
     SYSTEM_ERROR(999, "系统出错");

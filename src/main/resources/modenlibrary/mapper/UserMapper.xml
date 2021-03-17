@@ -84,7 +84,7 @@
         #{username,jdbcType=VARCHAR},
       </if>
       <if test="password != null">
-        #{password,jdbcType=VARCHAR},
+        md5(#{password,jdbcType=VARCHAR}),
       </if>
       <if test="gender != null">
         #{gender,jdbcType=TINYINT},
