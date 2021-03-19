@@ -5,6 +5,8 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.date.LocalDateTimeUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.poi.excel.ExcelReader;
+import cn.hutool.poi.excel.ExcelUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import modenlibrary.Common.code.ReturnCode;
@@ -16,12 +18,14 @@ import modenlibrary.config.ImgProperties;
 import modenlibrary.entity.Category;
 import modenlibrary.entity.LendList;
 import modenlibrary.entity.User;
+import modenlibrary.entity.Vo.BooksVo;
 import modenlibrary.mapper.CategoryMapper;
 import modenlibrary.mapper.LendListMapper;
 import modenlibrary.mapper.UserMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -49,6 +53,9 @@ import java.util.*;
  */
 @Service
 public class BookServiceImpl implements BookService {
+
+    //文件限制大小 单位m
+    private static final Integer FILE_LIMIT_SIZE = 10;
 
     private static Logger logger = LoggerFactory.getLogger(BookServiceImpl.class);
 
@@ -428,5 +435,68 @@ public class BookServiceImpl implements BookService {
             }
         }
         return map;
+    }
+
+
+    /**
+     * 异步批量处理添加图书
+     * @param file
+     */
+    @Async("asyncServiceExecutor")
+    @Override
+    public void uploadExcel(MultipartFile file) {
+        if (file==null||file.isEmpty()){
+            throw new BusinessException(ReturnCode.FORM_ERROR);
+        }
+        String originalFilename = file.getOriginalFilename();
+        String fileTypeName = originalFilename.substring(originalFilename.lastIndexOf(".")+1);
+        //文件类型判断
+        if (!"xls".equals(fileTypeName)){
+            throw new BusinessException(ReturnCode.FILE_TYPE_ERROR);
+        }
+        if(!"application/vnd.ms-excel".equals(file.getContentType()))
+        {
+            throw new BusinessException(ReturnCode.FILE_TYPE_ERROR);
+        }
+        //文件大小判断
+        if (file.getSize()/1024/1024 > FILE_LIMIT_SIZE){
+            throw new BusinessException(ReturnCode.FILE_TOO_BIG);
+        }
+        try {
+            ExcelReader reader = ExcelUtil.getReader(file.getInputStream());
+            List<BooksVo> booksVos = reader.readAll(BooksVo.class);
+            for (BooksVo booksVo : booksVos) {
+                Book book = booksVo.convert();
+                if (bookMapper.selectByPrimaryKey(book.getIsbn()) != null) {
+                    //该isbn书已经有了
+                    throw new BusinessException(101,"该ISBN号已经有了");
+                }
+                if (book.getIsbn().length()!=10){
+                    throw new BusinessException(100, "isbn号错误！");
+                }
+                int ok = bookMapper.insertSelective(book);
+                if (ok == 1) {
+                    //添加该类型的书的数量
+                    if (book.getCategoryId()!=null||book.getCategoryId()!=0){
+                        Category category = categoryMapper.findById(book.getCategoryId());
+                        Object obj = redisUtil.hget("categoryNum", category.getCName());
+                        Integer categoryNum;
+                        if (obj!=null){
+                            categoryNum = (Integer) obj;
+                        }else {
+                            categoryNum = 0;
+                        }
+                        //增加数量
+                        redisUtil.hset("categoryNum",category.getCName(),categoryNum+1);
+                    }
+                } else {
+                    throw new BusinessException(ReturnCode.SYSTEM_ERROR);
+                }
+
+            }
+            booksVos = null;
+        } catch (IOException e) {
+            logger.error("文件读取失败！");
+        }
     }
 }

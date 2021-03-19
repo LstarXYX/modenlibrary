@@ -345,7 +345,6 @@ public class UserController {
 
     /**
      * 接收用户上传的Excel文件 实现批量添加用户
-     * todo:无法接收file文件
      * @param file excel文件
      * @return ResultVo
      */
@@ -354,7 +353,7 @@ public class UserController {
     @Operation("导入用户Excel文件")
     public ResultVo uploadExcel(MultipartFile file){
         userService.insertUsers(file);
-        return Result.success(null);
+        return Result.success("success");
     }
 
 }

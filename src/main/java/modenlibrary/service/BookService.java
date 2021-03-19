@@ -39,4 +39,6 @@ public interface BookService{
     Book updateBook(Book book, MultipartFile file);
 
     Map<String, Integer> categoryNum();
+
+    void uploadExcel(MultipartFile file);
 }

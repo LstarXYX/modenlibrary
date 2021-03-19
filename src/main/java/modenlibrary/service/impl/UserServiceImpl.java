@@ -14,6 +14,7 @@ import modenlibrary.entity.Role;
 import modenlibrary.entity.Vo.UserInfo;
 import modenlibrary.entity.Vo.UserTemplateVo;
 import modenlibrary.mapper.RoleMapper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import modenlibrary.mapper.UserMapper;
@@ -145,8 +146,10 @@ public class UserServiceImpl implements UserService{
 
     /**
      * 批量添加学生
+     * 
      * @param file 传过来的Excel文件 必须
      */
+    @Async("asyncServiceExecutor")
     @Override
     public void insertUsers(MultipartFile file) {
         if (file==null||file.isEmpty()){
