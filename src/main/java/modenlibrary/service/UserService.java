@@ -55,4 +55,5 @@ public interface UserService{
 
     void insertUsers(MultipartFile file);
 
+    void resetCounts(Integer userId);
 }

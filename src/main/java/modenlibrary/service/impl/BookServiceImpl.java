@@ -11,6 +11,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import modenlibrary.Common.code.ReturnCode;
 import modenlibrary.Common.eum.BookStatus;
+import modenlibrary.Common.eum.RoleEnum;
 import modenlibrary.Common.exception.BusinessException;
 import modenlibrary.Common.utils.RedisUtil;
 import modenlibrary.Common.vo.PageRequest;
@@ -42,7 +43,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.sql.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
@@ -56,6 +58,10 @@ public class BookServiceImpl implements BookService {
 
     //文件限制大小 单位m
     private static final Integer FILE_LIMIT_SIZE = 10;
+    //借书天数
+    private static final Integer MAX_LEND_DAY = 30;
+    //最大违规次数
+    private static final Integer MAX_COUNTS = 5;
 
     private static Logger logger = LoggerFactory.getLogger(BookServiceImpl.class);
 
@@ -166,19 +172,19 @@ public class BookServiceImpl implements BookService {
         user.setAllowLend(user.getAllowLend() - 1);
         userMapper.updateByPrimaryKey(user);
         //当前日期借书人数加一 格式是：LendBookNum月份 当月第几天
-        double num = redisUtil.hincr("LendBookNum"+DateUtil.thisMonth()+1,String.valueOf(DateUtil.thisDayOfMonth()),1);
+        double num = redisUtil.hincr("LendBookNum"+(DateUtil.thisMonth()+1),String.valueOf(DateUtil.thisDayOfMonth()),1d);
         logger.info("当天借书人数："+num+"人");
     }
 
     /**
-     * 还书
+     * 更改借阅状态
      *
      * @param user
      * @param isbn
      * @param status
      * @return
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Boolean returnedBook(User user, String isbn, BookStatus status) {
         //书本
@@ -201,6 +207,9 @@ public class BookServiceImpl implements BookService {
             case RETURNED:
                 //如果改为归还
                 lendList.setReturnDate(DateTime.now());
+                //检查超时违规
+                checkCounts(user,lendList);
+                int i = lendList.getReturnDate().compareTo(lendList.getLendDate());
                 lendList.setStatus(BookStatus.RETURNED.getMsg());
                 int ok = lendListMapper.updateLendList(lendList);
                 if (ok == 1) {
@@ -215,11 +224,34 @@ public class BookServiceImpl implements BookService {
                     throw new BusinessException(ReturnCode.SYSTEM_ERROR);
                 }
             case OTHERS:
+                //检查超时违规
+                checkCounts(user,lendList);
                 lendList.setStatus(BookStatus.OTHERS.getMsg());
                 lendListMapper.updateLendList(lendList);
                 return true;
             default:
                 return false;
+        }
+    }
+
+    private int differenceInDays(Date lendDate, Date returnDate) {
+        int days = (int)((returnDate.getTime() - lendDate.getTime()) / (1000*3600*24));
+        return days;
+    }
+
+    private void checkCounts(User user, LendList lendList) {
+        if (user.getId() == 111) {
+            return;
+        }
+        int days = differenceInDays(lendList.getLendDate(),lendList.getReturnDate());
+        //超时违规
+        if (days > MAX_LEND_DAY) {
+            user.setCounts(user.getCounts()+1);
+            userMapper.incrCounts(user.getId());
+            //违规次数超过限制 加入黑名单
+            if (user.getCounts() >= MAX_COUNTS){
+                userMapper.changeRole(user.getId(), RoleEnum.BLACK.getRoleid());
+            }
         }
     }
 

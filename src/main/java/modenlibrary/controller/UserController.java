@@ -257,6 +257,7 @@ public class UserController {
         //更新用户信息
         user.setIsblack(Byte.valueOf("0"));
         userService.updateByPrimaryKeySelective(user);
+        userService.resetCounts(user.getId());
         //从黑名单上删除
         int ok = blacklistService.del(user.getId());
         if (ok==1){
@@ -353,6 +354,14 @@ public class UserController {
     @Operation("导入用户Excel文件")
     public ResultVo uploadExcel(MultipartFile file){
         userService.insertUsers(file);
+        return Result.success("success");
+    }
+
+    @GetMapping("/reset")
+    @RequiresRoles(value = {"超级管理员", "普通管理员"}, logical = Logical.OR)
+    @Operation("重置用户违规次数")
+    public ResultVo resetCounts(Integer userId) {
+        userService.resetCounts(userId);
         return Result.success("success");
     }
 

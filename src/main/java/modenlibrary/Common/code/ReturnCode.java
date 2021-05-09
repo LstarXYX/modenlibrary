@@ -29,6 +29,7 @@ public enum ReturnCode implements IReturnCode{
     FILE_TOO_BIG(306,"文件太大了"),
     REDIS_DELTA_ERROR(500,"递增因子错误"),
     REDIS_ERROR(501,"Redis错误"),
+    PUSH_ERROR(502,"消息推送失败"),
     SYSTEM_ERROR(999, "系统出错");
 
     private Integer code;

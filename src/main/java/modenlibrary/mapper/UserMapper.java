@@ -45,4 +45,8 @@ public interface UserMapper {
     int changeRole(@Param("id")Integer id,@Param("roleId")Integer roleId);
 
     Integer getUserNum();
+
+    int resetCounts(Integer userId);
+
+    int incrCounts(Integer userId);
 }

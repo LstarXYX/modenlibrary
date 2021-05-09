@@ -12,6 +12,7 @@
     <result column="allow_lend" jdbcType="INTEGER" property="allowLend" />
     <result column="isdel" jdbcType="TINYINT" property="isdel" />
     <result column="register_date" jdbcType="TIMESTAMP" property="registerDate" />
+    <result column="counts" jdbcType="INTEGER" property="counts" />
   </resultMap>
   <resultMap id="UserInfoResultMap" type="modenlibrary.entity.Vo.UserInfo">
     <id column="id" jdbcType="INTEGER" property="id" />
@@ -22,6 +23,7 @@
     <result column="allow_lend" jdbcType="INTEGER" property="allowLend" />
     <result column="isdel" jdbcType="TINYINT" property="isdel" />
     <result column="register_date" jdbcType="TIMESTAMP" property="registerDate" />
+    <result column="counts" jdbcType="INTEGER" property="counts" />
     <association property="role" javaType="modenlibrary.entity.Role">
       <result column="role_id" jdbcType="INTEGER" property="roleId"/>
       <result column="role_name" jdbcType="VARCHAR" property="roleName"/>
@@ -30,7 +32,7 @@
   </resultMap>
   <sql id="Base_Column_List">
     <!--@mbg.generated-->
-    id, username, `password`, gender, isblack, allow_lend, isdel, register_date
+    id, username, `password`, gender, isblack, allow_lend, isdel, register_date,counts
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     <!--@mbg.generated-->
@@ -163,6 +165,7 @@
     `user`.allow_lend,
     `user`.isdel,
     `user`.register_date,
+    `user`.counts,
     role.role_id,
     role.role_name,
     role.role_desc
@@ -206,5 +209,16 @@
       select count(id)
       from user
     </select>
+  <update id="resetCounts">
+    update user
+    set counts = 0
+    where id = #{userId,jdbcType=INTEGER}
+  </update>
+  <update id="incrCounts">
+    update user
+    set counts = counts+1
+    where id = #{userId,jdbcType=INTEGER}
+  </update>
+
 
 </mapper>

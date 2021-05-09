@@ -35,7 +35,7 @@ public class WebSocketServer {
         log.info("有连接加入，当前连接数为：{}", personCount);
 //		SendMessage(session, "连接成功,当前连接人数为:"+personCount);
 //		SendMessage(session,String.valueOf(personCount));
-        BroadCastInfo(String.valueOf(OnlineCount.get()));
+//        BroadCastInfo(String.valueOf(OnlineCount.get()));
     }
 
     /**

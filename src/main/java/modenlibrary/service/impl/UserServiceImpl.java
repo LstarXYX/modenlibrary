@@ -5,6 +5,7 @@ import cn.hutool.poi.excel.ExcelUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
+import modenlibrary.Common.code.IReturnCode;
 import modenlibrary.Common.code.ReturnCode;
 import modenlibrary.Common.eum.RoleEnum;
 import modenlibrary.Common.exception.BusinessException;
@@ -146,7 +147,7 @@ public class UserServiceImpl implements UserService{
 
     /**
      * 批量添加学生
-     * 
+     *
      * @param file 传过来的Excel文件 必须
      */
     @Async("asyncServiceExecutor")
@@ -183,5 +184,19 @@ public class UserServiceImpl implements UserService{
         } catch (IOException e) {
             log.error("文件读取错误");
         }
+    }
+
+    /**
+     * 重置用户违规次数
+     * @param userId 用户ID
+     */
+    @Override
+    public void resetCounts(Integer userId) {
+        User user = userMapper.selectByPrimaryKey(userId);
+        if (user == null) {
+            throw new BusinessException(ReturnCode.NOT_USER);
+        }
+
+        userMapper.resetCounts(userId);
     }
 }

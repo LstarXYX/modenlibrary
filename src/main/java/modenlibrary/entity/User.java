@@ -46,6 +46,11 @@ public class User implements Serializable {
     private Byte isdel;
 
     /**
+     * 违规次数
+     */
+    private Integer counts;
+
+    /**
     * 用户注册日期
     */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
