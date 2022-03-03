@@ -1,5 +1,6 @@
 package modenlibrary.service.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import modenlibrary.entity.Lendhistory;
 import modenlibrary.entity.RangeResult;
 import modenlibrary.mapper.LendhistoryMapper;
@@ -18,7 +19,8 @@ import java.util.Map;
  * @author L.star
  * @date 2020/12/25 20:57
  */
-@Service
+@Service("lendhistoryService")
+@Slf4j
 public class LendhistoryServiceImpl implements LendhistoryService {
 
     @Resource
@@ -32,16 +34,19 @@ public class LendhistoryServiceImpl implements LendhistoryService {
      */
     @Override
     public Integer countDay(String date) {
+        log.info("查询 【{}】 的借阅人数",date);
         return lendhistoryMapper.countDay(date);
     }
 
     @Override
     public List<Lendhistory> countAllDay(String year,String month) {
+        log.info("查询 {} 年 {} 月 的借书人数",year,month);
         return lendhistoryMapper.countAllDay(year,month);
     }
 
     @Override
     public Integer countMonth(String year,String month) {
+        log.info("统计 {} 年 {} 月的借书人数",year,month);
         return lendhistoryMapper.countMonth(year,month);
     }
 
@@ -53,6 +58,7 @@ public class LendhistoryServiceImpl implements LendhistoryService {
      */
     @Override
     public Integer insert(Lendhistory lendhistory) {
+        log.info("添加当天借书人数 【{}】",lendhistory);
         return lendhistoryMapper.insert(lendhistory);
     }
 
@@ -64,6 +70,7 @@ public class LendhistoryServiceImpl implements LendhistoryService {
      */
     @Override
     public List<RangeResult> countRangeMonth(String from, String to) {
+        log.info("查询 【{}】 到 【{}】 的借书人数列表",from,to);
         return lendhistoryMapper.countRangeMonth(from,to);
     }
 
@@ -74,6 +81,7 @@ public class LendhistoryServiceImpl implements LendhistoryService {
      */
     @Override
     public Map<String, Integer> LendBookNumOfGender() {
+        log.info("查询男女生借书人数");
         Map<String, Integer>map = new HashMap<>();
         List<Map<Object, Object>>list = lendhistoryMapper.LendBoookNumOfGender();
         for (Map<Object, Object> stringObjectMap : list) {
@@ -97,6 +105,7 @@ public class LendhistoryServiceImpl implements LendhistoryService {
      */
     @Override
     public Map<String, Integer> categoryLendNum() {
+        log.info("查询不同类型图书借书人数");
         Map<String, Integer>map = new HashMap<>();
         List<Map<String, Object>>list = lendhistoryMapper.categoryLendNum();
         for (Map<String, Object> stringObjectMap : list) {

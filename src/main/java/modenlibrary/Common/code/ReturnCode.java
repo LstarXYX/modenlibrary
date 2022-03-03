@@ -20,6 +20,7 @@ public enum ReturnCode implements IReturnCode{
     BOOK_UNKNOWN(204,"该书不存在"),
     USERNAME_HAS_SAME(206,"用户名已存在"),
     CAN_NOT_LEND(205,"不能借书"),
+    ALREDAY_LENDED(207,"已经借过这本书了，还未归还"),
     CODE_ERROR(209,"验证码错误"),
     NOT_USER(301,"查无此人"),
     NOT_LEND_LIST(302,"没有此借书记录"),
@@ -30,6 +31,7 @@ public enum ReturnCode implements IReturnCode{
     REDIS_DELTA_ERROR(500,"递增因子错误"),
     REDIS_ERROR(501,"Redis错误"),
     PUSH_ERROR(502,"消息推送失败"),
+    SCHEDULER_ERROR(503,"定时任务错误"),
     SYSTEM_ERROR(999, "系统出错");
 
     private Integer code;

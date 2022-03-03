@@ -44,9 +44,11 @@ public class UserServiceImpl implements UserService{
     //文件限制大小 单位m
     private static final Integer FILE_LIMIT_SIZE = 10;
 
+    @Async("asyncServiceExecutor")
     @Override
-    public int deleteByPrimaryKey(Integer id) {
-        return userMapper.deleteByPrimaryKey(id);
+    public void deleteByPrimaryKey(Integer id) {
+        log.info("删除ID为 【{}】 的用户",id);
+        userMapper.deleteByPrimaryKey(id);
     }
 
     /**
@@ -54,43 +56,49 @@ public class UserServiceImpl implements UserService{
      * @param record
      * @return
      */
-    @Transactional
+    @Async("asyncServiceExecutor")
+    @Transactional(rollbackFor = Exception.class)
     @Override
-    public int insert(User record) {
-        int ok = userMapper.insert(record);
-        if (ok==1){
-           ok = userMapper.addReaderRole(record.getId());
-        }
-        return ok;
+    public void insert(User record) {
+        log.info("添加用户 【{}】",record);
+        userMapper.insert(record);
+        userMapper.addReaderRole(record.getId());
     }
 
     @Override
     public int insertSelective(User record) {
+        log.info("有选择地添加用户 【{}】",record);
         return userMapper.insertSelective(record);
     }
 
     @Override
     public User selectByPrimaryKey(Integer id) {
+        log.info("查询ID为 【{}】 的用户",id);
         return userMapper.selectByPrimaryKey(id);
     }
 
+    @Async("asyncServiceExecutor")
     @Override
-    public int updateByPrimaryKeySelective(User record) {
-        return userMapper.updateByPrimaryKeySelective(record);
+    public void updateByPrimaryKeySelective(User record) {
+        log.info("有选择地更新用户为：【{}】",record);
+        userMapper.updateByPrimaryKeySelective(record);
     }
 
     @Override
     public int updateByPrimaryKey(User record) {
+        log.info("更新用户为：【{}】",record);
         return userMapper.updateByPrimaryKey(record);
     }
 
     @Override
     public User login(Integer id, String password) {
+        log.info("普通用户登录");
         return userMapper.login(id,password);
     }
 
     @Override
     public User loginAdmin(Integer id, String password) {
+        log.info("管理员登录");
         User user = userMapper.login(id, password);
         if (user!=null){
             //有该用户 判断是否是管理员
@@ -108,6 +116,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public PageInfo<UserInfo> queryUser(PageRequest pageRequest,User user) {
+        log.info("查询用户信息 【{}】",user);
         int pageNum = pageRequest.getPageNum();
         int pageSize = pageRequest.getPageSize();
         PageHelper.startPage(pageNum,pageSize);
@@ -118,8 +127,10 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public Boolean isAdmin(Integer id) {
+        log.info("判断是否是管理员");
         Role role = roleMapper.isAdmin(id);
         if (role==null){
+            log.error("错误：角色不存在");
             throw new BusinessException(ReturnCode.NOT_USER);
         }
         return (role.getRoleName().equals(RoleEnum.ADMIN.getName())||role.getRoleName().equals(RoleEnum.SPADMIN.getName()));
@@ -127,6 +138,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public User selectByUserName(String username) {
+        log.info("根据用户名查询 【{}】",username);
         return userMapper.selectByUserName(username);
     }
 
@@ -135,13 +147,16 @@ public class UserServiceImpl implements UserService{
      * @param id
      * @return
      */
+    @Async("asyncServiceExecutor")
     @Override
-    public int changeRole(Integer id,Integer roleId) {
-        return userMapper.changeRole(id,roleId);
+    public void changeRole(Integer id,Integer roleId) {
+        log.info("把ID为 【{}】地用户更改为角色 【{}】",id,roleId);
+        userMapper.changeRole(id,roleId);
     }
 
     @Override
     public Integer getUserNum() {
+        log.info("获取用户数量");
         return userMapper.getUserNum();
     }
 
@@ -153,17 +168,21 @@ public class UserServiceImpl implements UserService{
     @Async("asyncServiceExecutor")
     @Override
     public void insertUsers(MultipartFile file) {
+        log.info("异步添加学生");
         if (file==null||file.isEmpty()){
+            log.error("错误：文件不存在");
             throw new BusinessException(ReturnCode.FORM_ERROR);
         }
         String originalFilename = file.getOriginalFilename();
         String fileTypeName = originalFilename.substring(originalFilename.lastIndexOf(".")+1);
         //文件类型判断
         if (!"xls".equals(fileTypeName)){
+            log.error("错误：文件格式错误,格式为：【{}】",fileTypeName);
             throw new BusinessException(ReturnCode.FILE_TYPE_ERROR);
         }
         if(!"application/vnd.ms-excel".equals(file.getContentType()))
         {
+            log.error("错误：格式错误,格式为：【{}】",file.getContentType());
             throw new BusinessException(ReturnCode.FILE_TYPE_ERROR);
         }
         //文件大小判断
@@ -174,6 +193,7 @@ public class UserServiceImpl implements UserService{
         try {
             ExcelReader reader = ExcelUtil.getReader(file.getInputStream());
             List<UserTemplateVo> userTemplateVos = reader.readAll(UserTemplateVo.class);
+            log.info("解析到用户数： 【{}】",userTemplateVos.size());
             if (userTemplateVos.size()>0){
                 userTemplateVos.forEach(e->{
                     User convert = e.convert();
@@ -182,7 +202,8 @@ public class UserServiceImpl implements UserService{
                 });
             }
         } catch (IOException e) {
-            log.error("文件读取错误");
+            log.error("文件读取错误 {}",e.getMessage());
+            throw new BusinessException(ReturnCode.SYSTEM_ERROR);
         }
     }
 
@@ -190,10 +211,13 @@ public class UserServiceImpl implements UserService{
      * 重置用户违规次数
      * @param userId 用户ID
      */
+    @Async("asyncServiceExecutor")
     @Override
     public void resetCounts(Integer userId) {
+        log.info("重置ID为：【{}】 的用户的违规次数",userId);
         User user = userMapper.selectByPrimaryKey(userId);
         if (user == null) {
+            log.error("错误：用户ID不存在");
             throw new BusinessException(ReturnCode.NOT_USER);
         }
 

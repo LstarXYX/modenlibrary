@@ -35,7 +35,7 @@ public class ModenlibraryApplication {
     //队列大小
     private int queueCapacity = 5;
     //线程池中的线程的名称前缀
-    private String namePrefix = "excel-service-";
+    private String namePrefix = "async-service-";
 
     public static void main(String[] args) {
         SpringApplication.run(ModenlibraryApplication.class, args);
@@ -59,6 +59,7 @@ public class ModenlibraryApplication {
         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
         //执行初始化
         executor.initialize();
+        logger.info("异步线程池初始化完毕");
         return executor;
     }
 

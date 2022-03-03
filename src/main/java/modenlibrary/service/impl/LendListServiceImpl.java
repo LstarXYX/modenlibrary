@@ -2,6 +2,7 @@ package modenlibrary.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import lombok.extern.slf4j.Slf4j;
 import modenlibrary.Common.vo.PageRequest;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
@@ -17,6 +18,7 @@ import java.util.List;
  * @author  L.star
  * @date 2020/12/23 16:08
  */
+@Slf4j
 @Service
 public class LendListServiceImpl implements LendListService{
 
@@ -43,6 +45,7 @@ public class LendListServiceImpl implements LendListService{
      */
     @Override
     public PageInfo<LendList> queryAll(PageRequest pageRequest, LendList lendList) {
+        log.info("查询借阅列表 【{}】",lendList);
         PageHelper.startPage(pageRequest.getPageNum(),pageRequest.getPageSize());
         List<LendList> list = lendListMapper.queryAll(lendList);
         return new PageInfo<>(list);
@@ -56,6 +59,7 @@ public class LendListServiceImpl implements LendListService{
      */
     @Override
     public PageInfo<LendList> queryById(PageRequest pageRequest,Integer id) {
+        log.info("根据ID查询借阅记录,ID为 【{}】",id);
         PageHelper.startPage(pageRequest.getPageNum(),pageRequest.getPageSize());
         List<LendList>list = lendListMapper.queryById(id);
         return new PageInfo<>(list);

@@ -1,27 +1,20 @@
 package modenlibrary.controller;
 
-import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import lombok.extern.slf4j.Slf4j;
-import modenlibrary.Common.code.ReturnCode;
-import modenlibrary.Common.exception.BusinessException;
 import modenlibrary.Common.utils.RedisUtil;
 import modenlibrary.Common.utils.Result;
 import modenlibrary.Common.vo.ResultVo;
-import modenlibrary.entity.Category;
 import modenlibrary.service.DataService;
 import modenlibrary.service.SysLogService;
-import modenlibrary.service.UserService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 
@@ -64,7 +57,7 @@ public class DataController {
         }
         //如果是今天 应该从redis找
         if (DateUtil.isSameDay(DateUtil.parse(date).toJdkDate(),DateUtil.parse(DateUtil.today()))){
-                Object obj = redisUtil.hget(KEY_LENDBOOKNUM+DateUtil.thisMonth(),String.valueOf(DateUtil.thisDayOfMonth()));
+                Object obj = redisUtil.hget(KEY_LENDBOOKNUM+(DateUtil.thisMonth()+1),String.valueOf(DateUtil.thisDayOfMonth()));
                 if (obj!=null){
                     int num = (int)obj;
                     return Result.success(num);
@@ -85,7 +78,8 @@ public class DataController {
     @RequiresRoles(value = {"普通管理员","超级管理员"},logical = Logical.OR)
     public ResultVo lendNumOfAllDay(@PathVariable("YearMonth")String YearMonth){
         if (YearMonth==null){
-            YearMonth = DateUtil.thisYear()+"-"+DateUtil.thisMonth()+1;
+            int d = DateUtil.thisMonth() + 1;
+            YearMonth = DateUtil.thisYear()+"-"+d;
         }
         return Result.success(dataService.LendBookNumOfAllDay(YearMonth));
     }
@@ -101,7 +95,8 @@ public class DataController {
     @RequiresRoles(value = {"普通管理员","超级管理员"},logical = Logical.OR)
     public ResultVo lendNumOfMonth(@PathVariable("YearMonth")String YearMonth){
         if (StrUtil.isBlank(YearMonth)){
-            YearMonth = DateUtil.thisYear()+"-"+DateUtil.thisMonth()+1;
+            int d = DateUtil.thisMonth() + 1;
+            YearMonth = DateUtil.thisYear()+"-"+d;
         }
         return Result.success(dataService.LendBookNumOfMonth(YearMonth));
     }
@@ -115,7 +110,8 @@ public class DataController {
     @ResponseBody
     @RequiresRoles(value = {"普通管理员","超级管理员"},logical = Logical.OR)
     public ResultVo lendNumOfThisMonth(){
-        String YearMonth = DateUtil.thisYear()+"-"+DateUtil.thisMonth()+1;
+        int d = DateUtil.thisMonth() + 1;
+        String YearMonth = DateUtil.thisYear()+"-"+d;
         return Result.success(redisUtil.sGet(YearMonth));
     }
 
@@ -132,7 +128,8 @@ public class DataController {
     public ResultVo lendNumOfRangeMonth(String from,String to){
         //如果是空的 返回这个月的给它
         if (StrUtil.isBlank(from)||StrUtil.isBlank(to)){
-            return Result.success(dataService.LendBookNumOfMonth(DateUtil.thisYear()+"-"+DateUtil.thisMonth()+1));
+            int d = DateUtil.thisMonth() + 1;
+            return Result.success(dataService.LendBookNumOfMonth(DateUtil.thisYear()+"-"+d));
         }
         return Result.success(dataService.LendBookNumOfRangeMonth(from, to));
     }
@@ -166,7 +163,8 @@ public class DataController {
     @ResponseBody
     @RequiresRoles(value = {"超级管理员","普通管理员"},logical = Logical.OR)
     public ResultVo todayNum(){
-        return Result.success(redisUtil.hget("LendBookNum"+DateUtil.thisMonth()+1,String.valueOf(DateUtil.thisDayOfMonth())));
+        int d = DateUtil.thisMonth() + 1;
+        return Result.success(redisUtil.hget("LendBookNum"+d,String.valueOf(DateUtil.thisDayOfMonth())));
     }
 
     /**
@@ -225,22 +223,23 @@ public class DataController {
     @ResponseBody
     @RequiresRoles(value = {"超级管理员","普通管理员"},logical = Logical.OR)
     public ResultVo mainIndex(){
+        int d = DateUtil.thisMonth() + 1;
 //        存放返回数据
         Map<String,Object>res = new HashMap<>();
         //获取用户人数
         res.put("userNum",dataService.getUserNum());
         //本月借书人数
-        res.put("lendBookNumThisMonth",dataService.LendBookNumOfMonth(DateUtil.thisYear()+"-"+DateUtil.thisMonth()+1));
+        res.put("lendBookNumThisMonth",dataService.LendBookNumOfMonth(DateUtil.thisYear()+"-"+d));
         //男女生借书人数
         res.put("genderlist",dataService.LendBookNumOfGender());
         //不同书本类别图书数据
         res.put("categoryNum",dataService.categoryNum());
         //当天借书人数
-        res.put("lendBookNumToday",redisUtil.hget("LendBookNum"+DateUtil.thisMonth()+1,String.valueOf(DateUtil.thisDayOfMonth())));
+        res.put("lendBookNumToday",redisUtil.hget("LendBookNum"+d,String.valueOf(DateUtil.thisDayOfMonth())));
         //近五个月的借书人数 yyyy-mm
         String from,to;
         //到这个月的
-        to = DateUtil.thisYear()+"-"+DateUtil.thisMonth()+1;
+        to = DateUtil.thisYear()+"-"+d;
         int mon = DateUtil.thisMonth()+1;
         int yea = DateUtil.thisYear();
         mon -= 5;

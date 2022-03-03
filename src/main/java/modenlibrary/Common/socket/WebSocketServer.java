@@ -59,19 +59,8 @@ public class WebSocketServer {
     @OnMessage
     public void onMessage(String message, Session session) throws IOException {
         log.info("来自客户端的消息：{}",message);
-//		System.out.println("来自客户端的消息:"+message);
-//		SendMessage(session, "收到消息，消息内容："+message);
-        if(message.equals("管理平台")) {
-            System.out.println("收到平台类型:"+message);
-        }
-//		if(message.equals("新增人数")) {
-//			System.out.println("打开页面:"+message);
-//			BroadCastInfo(String.valueOf(OnlineCount.get()+1));
-//		}
-        if(message.equals("关闭页面")) {
-            System.out.println("收到关闭页面:"+message);
-            //在线数加-1
-            BroadCastInfo(String.valueOf(OnlineCount.get()-1));
+        if ("ping".equals(message)) {
+            session.getBasicRemote().sendText("pong");
         }
     }
 
@@ -84,7 +73,6 @@ public class WebSocketServer {
     public void onError(Session session, Throwable error) {
         log.error("发生错误：{}，Session ID： {}",error.getMessage(),session.getId());
         System.out.println("发生错误：{}，Session ID： "+error.getMessage()+session.getId());
-        error.printStackTrace();
     }
 
     /**
@@ -99,7 +87,6 @@ public class WebSocketServer {
         } catch (IOException e) {
             log.error("发送消息出错：{}", e.getMessage());
             System.out.println("发送消息出错：{}"+e.getMessage());
-            e.printStackTrace();
         }
     }
 

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="modenlibrary.mapper.QuartzJobsMapper">
+
+    <resultMap type="modenlibrary.entity.QuartzBean" id="QuartzjobsMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="jobName" column="jobName" jdbcType="VARCHAR"/>
+        <result property="jobClass" column="jobClass" jdbcType="VARCHAR"/>
+        <result property="status" column="status" jdbcType="INTEGER"/>
+        <result property="cronExpression" column="cronExpression" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="QuartzjobsMap">
+        select
+          id, jobName, jobClass, status, cronExpression
+        from quartzjobs
+        where id = #{id}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="QuartzjobsMap">
+        select
+          id, jobName, jobClass, status, cronExpression
+        from quartzjobs
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="QuartzjobsMap">
+        select
+          id, jobName, jobClass, status, cronExpression
+        from quartzjobs
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="jobName != null and jobName != ''">
+                and jobName = #{jobName}
+            </if>
+            <if test="jobClass != null and jobClass != ''">
+                and jobClass = #{jobClass}
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+            <if test="cronExpression != null and cronExpression != ''">
+                and cronExpression = #{cronExpression}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into quartzjobs(jobName, jobClass, status, cronExpression)
+        values (#{jobName,jdbcType=VARCHAR}, #{jobClass,jdbcType=VARCHAR}, #{status}, #{cronExpression,jdbcType=VARCHAR})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update quartzjobs
+        <set>
+            <if test="jobName != null and jobName != ''">
+                jobName = #{jobName},
+            </if>
+            <if test="jobClass != null and jobClass != ''">
+                jobClass = #{jobClass},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="cronExpression != null and cronExpression != ''">
+                cronExpression = #{cronExpression},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from quartzjobs where id = #{id}
+    </delete>
+
+</mapper>

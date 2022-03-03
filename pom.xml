@@ -67,7 +67,11 @@
             <artifactId>poi</artifactId>
             <version>4.1.2</version>
         </dependency>
-
+<!--        quartz-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-quartz</artifactId>
+        </dependency>
 
         <!--        JSP相关-->
         <dependency>

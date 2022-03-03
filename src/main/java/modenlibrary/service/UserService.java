@@ -15,15 +15,15 @@ import java.util.List;
 public interface UserService{
 
 
-    int deleteByPrimaryKey(Integer id);
+    void deleteByPrimaryKey(Integer id);
 
-    int insert(User record);
+    void insert(User record);
 
     int insertSelective(User record);
 
     User selectByPrimaryKey(Integer id);
 
-    int updateByPrimaryKeySelective(User record);
+    void updateByPrimaryKeySelective(User record);
 
     int updateByPrimaryKey(User record);
 
@@ -49,7 +49,7 @@ public interface UserService{
 
     User selectByUserName(String username);
 
-    int changeRole(Integer id,Integer roleId);
+    void changeRole(Integer id,Integer roleId);
 
     Integer getUserNum();
 

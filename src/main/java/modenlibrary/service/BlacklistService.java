@@ -10,11 +10,11 @@ import modenlibrary.entity.Blacklist;
 public interface BlacklistService{
 
 
-    int insert(Blacklist record);
+    void insert(Blacklist record);
 
     int insertSelective(Blacklist record);
 
-    int del(Integer id);
+    void del(Integer id);
 
     PageInfo<Blacklist> list(PageRequest pageRequest);
     }

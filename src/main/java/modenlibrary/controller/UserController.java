@@ -60,9 +60,6 @@ public class UserController {
     private UserService userService;
 
     @Autowired
-    private RoleService roleService;
-
-    @Autowired
     private BlacklistService blacklistService;
 
     @Autowired
@@ -117,10 +114,7 @@ public class UserController {
                 .gender(gender.byteValue())
                 .registerDate(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()))
                 .build();
-        Integer id = userService.insert(user);
-        if (id != 1){
-            throw new BusinessException(ReturnCode.SYSTEM_ERROR);
-        }
+        userService.insert(user);
         return Result.success(user);
     }
 
@@ -139,11 +133,8 @@ public class UserController {
         if (user == null) {
             throw new BusinessException(ReturnCode.NOT_USER);
         }
-        int ok = userService.deleteByPrimaryKey(user.getId());
-        if (ok!=1){
-            throw new BusinessException(ReturnCode.SYSTEM_ERROR);
-        }
-        return Result.success("ok");
+        userService.deleteByPrimaryKey(user.getId());
+        return Result.success(ReturnCode.SUCCESS);
     }
 
     /**
@@ -176,20 +167,14 @@ public class UserController {
             if (userService.isAdmin(user.getId())&& !u.getId().equals(user.getId()) && u.getId()!=111){
                 return Result.fail(ReturnCode.AUTHOR_ERROR);
             }
-            int ok = userService.updateByPrimaryKeySelective(user);
-            if (ok==1){
-                //获取新user
-                user = userService.selectByPrimaryKey(user.getId());
-                return Result.success(user);
-            }else {
-                throw new BusinessException(ReturnCode.SYSTEM_ERROR);
-            }
+            userService.updateByPrimaryKeySelective(user);
+            return Result.success(ReturnCode.SUCCESS);
         }else {
             /**
-             * 只能更改密码
+             * 只能更改密码 且必须是本人
              * todo:校验密码
              */
-            if (!StringUtils.isEmpty(user.getPassword())){
+            if (u.getId().equals(user.getId()) && !StringUtils.isEmpty(user.getPassword())){
                 u.setPassword(DigestUtils.md5DigestAsHex(user.getPassword().getBytes()));
                 userService.updateByPrimaryKeySelective(u);
                 session.setAttribute("userInfo",u);
@@ -218,25 +203,17 @@ public class UserController {
         }
         //更新用户信息为黑名单
         user.setIsblack(Byte.valueOf("1"));
-        int ok = userService.updateByPrimaryKeySelective(user);
-        if (ok==1){
-            Blacklist blacklist = Blacklist.builder()
+        userService.updateByPrimaryKeySelective(user);
+        Blacklist blacklist = Blacklist.builder()
                     .uid(user.getId())
                     .uname(user.getUsername())
                     .cdate(DateTime.now())
                     .build();
-            //加入黑名单列表
-            ok = blacklistService.insert(blacklist);
-            if (ok == 1){
-                //更改角色
-                userService.changeRole(user.getId(), RoleEnum.BLACK.getRoleid());
-                return Result.success(blacklist);
-            }else {
-                throw new  BusinessException(ReturnCode.SYSTEM_ERROR);
-            }
-        }else {
-            throw new  BusinessException(ReturnCode.SYSTEM_ERROR);
-        }
+        //加入黑名单列表
+        blacklistService.insert(blacklist);
+        //更改角色
+        userService.changeRole(user.getId(), RoleEnum.BLACK.getRoleid());
+        return Result.success(blacklist);
     }
 
     /**
@@ -259,13 +236,9 @@ public class UserController {
         userService.updateByPrimaryKeySelective(user);
         userService.resetCounts(user.getId());
         //从黑名单上删除
-        int ok = blacklistService.del(user.getId());
-        if (ok==1){
-            userService.changeRole(user.getId(),RoleEnum.READER.getRoleid());
-            return Result.success(user);
-        }else {
-            throw new BusinessException(ReturnCode.SYSTEM_ERROR);
-        }
+        blacklistService.del(user.getId());
+        userService.changeRole(user.getId(),RoleEnum.READER.getRoleid());
+        return Result.success(ReturnCode.SUCCESS);
     }
 
     /**
@@ -362,7 +335,7 @@ public class UserController {
     @Operation("重置用户违规次数")
     public ResultVo resetCounts(Integer userId) {
         userService.resetCounts(userId);
-        return Result.success("success");
+        return Result.success(ReturnCode.SUCCESS);
     }
 
 }

@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
  * @author L.star
  * @date 2020/12/25 12:08
  */
-@Component
+@Component("redisUtil")
 public class RedisUtil {
 
     private static Logger logger = LoggerFactory.getLogger(RedisUtil.class);

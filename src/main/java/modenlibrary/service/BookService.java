@@ -16,7 +16,7 @@ import java.util.Map;
 public interface BookService{
 
 
-    int deleteByPrimaryKey(String isbn);
+    void deleteByPrimaryKey(String isbn);
 
     int insert(Book record);
 
@@ -30,13 +30,13 @@ public interface BookService{
 
     PageInfo<Book> queryAll(PageRequest pageRequest,Book book);
 
-    Boolean returnedBook(User user, String isbn, BookStatus status);
+    void returnedBook(User user, String isbn, BookStatus status);
 
     void lendBook(User user,String isbn);
 
-    Book addBook(Book book, MultipartFile file);
+    void addBook(Book book, MultipartFile file);
 
-    Book updateBook(Book book, MultipartFile file);
+    void updateBook(Book book, MultipartFile file);
 
     Map<String, Integer> categoryNum();
 

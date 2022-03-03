@@ -40,12 +40,8 @@ public class AdminController {
     @ResponseBody
     @RequiresRoles("超级管理员")
     public ResultVo addAdmin(@PathVariable("id")Integer id){
-        int ok = userService.changeRole(id, RoleEnum.ADMIN.getRoleid());
-        if (ok==1){
-            return Result.success("ok");
-        }else {
-            return Result.fail(ReturnCode.SYSTEM_ERROR);
-        }
+        userService.changeRole(id, RoleEnum.ADMIN.getRoleid());
+        return Result.success("ok");
     }
 
     /**
@@ -59,12 +55,8 @@ public class AdminController {
     @ResponseBody
     @RequiresRoles("超级管理员")
     public ResultVo removeAdmin(@PathVariable("id")Integer id){
-        int ok = userService.changeRole(id,RoleEnum.READER.getRoleid());
-        if (ok==1){
-            return Result.success("ok");
-        }else {
-            return Result.fail(ReturnCode.SYSTEM_ERROR);
-        }
+        userService.changeRole(id,RoleEnum.READER.getRoleid());
+        return Result.success("ok");
     }
 
     @GetMapping("/push")

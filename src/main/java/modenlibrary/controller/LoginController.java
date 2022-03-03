@@ -167,6 +167,7 @@ public class LoginController {
         CodeVO codeVO = CodeVO.builder()
                 .base64Str(imageBase64)
                 .uuid(uuid).build();
+        logger.info("uuid: {} 验证码：{}",uuid,lineCaptcha.getCode());
         //验证码放入redis并设置过期时间
         redisUtil.set(uuid,lineCaptcha.getCode(), TimeUnit.MINUTES.toSeconds(CODE_EXPIRE_TIME));
         return Result.success(codeVO);
@@ -177,7 +178,7 @@ public class LoginController {
     public ResultVo logout(){
         Subject subject = SecurityUtils.getSubject();
         subject.logout();
-        return Result.success("ok");
+        return Result.success(ReturnCode.SUCCESS);
     }
 
 }

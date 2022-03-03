@@ -2,8 +2,10 @@ package modenlibrary;
 
 import cn.hutool.core.date.DateUtil;
 import lombok.extern.slf4j.Slf4j;
+import modenlibrary.Common.utils.ApplicationContextUtil;
 import modenlibrary.Common.utils.RedisUtil;
 import modenlibrary.entity.Lendhistory;
+import modenlibrary.scheduled.ScheduledTask;
 import modenlibrary.service.DataService;
 import modenlibrary.service.LendhistoryService;
 import org.junit.jupiter.api.Test;
@@ -118,5 +120,46 @@ class ModenlibraryApplicationTests {
 //            System.out.println("key--"+entry.getKey()+",value---"+entry.getValue());
 //        }
 //    }
+//    @Autowired
+//    private RedisUtil redisUtil;
+//
+//    @Test
+//    public void testRedis(){
+//        if (redisUtil == null) {
+//            assert false;
+//        }
+//        int num = 0;
+//        int pastday = DateUtil.yesterday().dayOfMonth();
+//        int pastmonth = DateUtil.thisMonth()+1;
+//        Object obj = null;
+//        if (DateUtil.thisDayOfMonth()==1){
+//            log.info("获取上个月日期");
+//            //如果今天是一号 那么昨天是上个月
+//            pastmonth -= 1;
+//            if (pastmonth == 0){
+//                pastmonth = 12;
+//            }
+//        }
+//        log.info("昨天日期: {}月{}日",pastmonth,pastday);
+//        //获取昨天的人数
+//        obj = redisUtil.hget("LendBookNum"+pastmonth, String.valueOf(pastday));
+//        log.info("获取到的obj值 {}",obj);
+//        if (obj != null){
+//            num = (int)obj;
+//            log.info("昨天人数是：{}",num);
+//        }
+//        Lendhistory yesterday = Lendhistory.builder()
+//                .cdate(DateUtil.yesterday())
+//                .people(num).build();
+//
+//    }
+
+/*    @Autowired
+    private ScheduledTask scheduledTask;
+
+    @Test
+    public void testScheduled(){
+        scheduledTask.task1();
+    }*/
 
 }

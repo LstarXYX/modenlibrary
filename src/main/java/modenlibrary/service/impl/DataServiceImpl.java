@@ -22,7 +22,7 @@ import java.util.Map;
  * @author L.star
  * @date 2020/12/26 10:08
  */
-@Service
+@Service("dataService")
 @Slf4j
 public class DataServiceImpl implements DataService {
 
@@ -61,7 +61,7 @@ public class DataServiceImpl implements DataService {
         }
         String year = temp[0];
         String month = temp[1];
-        log.info("年："+year+"----月："+month);
+        log.info("查询 {} 年 {} 月 所有日期的借书人数",year,month);
         return lendhistoryService.countAllDay(year,month);
     }
 
@@ -79,12 +79,13 @@ public class DataServiceImpl implements DataService {
         }
         String year = temp[0];
         String month = temp[1];
-        log.info("年："+year+"----月："+month);
+        log.info("查询 {} 年 {} 月 的借书人数",year,month);
         return lendhistoryService.countMonth(year,month);
     }
 
     @Override
     public List<RangeResult> LendBookNumOfRangeMonth(String from, String to) {
+        log.info("查询 【{}】 到 【{}】的借书人数",from,to);
         return lendhistoryService.countRangeMonth(from,to);
     }
 
@@ -94,6 +95,7 @@ public class DataServiceImpl implements DataService {
         Map<String,Integer> categoryNum = (Map<String, Integer>) redisUtil.hgetAll("categoryNum");
         Map<String,Integer>categories;
         if (categoryNum.size()==0){
+            log.info("Redis没有类别数量的数据");
             //查找数据库
             categories = bookService.categoryNum();
             //放入redis
@@ -104,6 +106,7 @@ public class DataServiceImpl implements DataService {
                 redisUtil.hset("categoryNum",entry.getKey(),entry.getValue());
             }
         }else {
+            log.info("使用缓存的类别数量的数据");
             //redis 有缓存
             categories = categoryNum;
         }
@@ -112,6 +115,7 @@ public class DataServiceImpl implements DataService {
 
     @Override
     public Map<String, Integer> categoryLendNum() {
+        log.info("获取不同类别借书数量");
         return lendhistoryService.categoryLendNum();
     }
 
@@ -120,6 +124,7 @@ public class DataServiceImpl implements DataService {
         Map<String, Integer> obj = (Map<String, Integer>) redisUtil.hgetAll("lendbooknumgender");
         Map<String, Integer>map;
         if (obj.size()==0){
+            log.info("Redis没有不同性别借书数量的数据");
             //数据库查找
             map = lendhistoryService.LendBookNumOfGender();
             for (Map.Entry<String, Integer>entry:map.entrySet()){
@@ -130,6 +135,7 @@ public class DataServiceImpl implements DataService {
                 }
             }
         }else {
+            log.info("使用Redis缓存不同性别借书数量的数据");
             map = obj;
         }
         return map;
@@ -137,6 +143,7 @@ public class DataServiceImpl implements DataService {
 
     @Override
     public Integer getUserNum() {
+        log.info("获取用户数量");
         return userService.getUserNum();
     }
 }

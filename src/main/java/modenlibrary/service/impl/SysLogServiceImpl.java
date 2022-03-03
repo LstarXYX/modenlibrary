@@ -1,5 +1,6 @@
 package modenlibrary.service.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
@@ -13,6 +14,7 @@ import java.util.List;
  * @author  L.star
  * @date 2020/12/26 15:59
  */
+@Slf4j
 @Service
 public class SysLogServiceImpl implements SysLogService{
 
@@ -26,6 +28,7 @@ public class SysLogServiceImpl implements SysLogService{
 
     @Override
     public int insert(SysLog record) {
+        log.info("插入日志 【{}】",record);
         return sysLogMapper.insert(record);
     }
 
@@ -47,6 +50,7 @@ public class SysLogServiceImpl implements SysLogService{
      */
     @Override
     public List<SysLog> queryByIp(String ip) {
+        log.info("查询IP为 【{}】 的日志",ip);
         return sysLogMapper.querByIp(ip);
     }
 
@@ -56,6 +60,7 @@ public class SysLogServiceImpl implements SysLogService{
      */
     @Override
     public List<SysLog> queryAll(Integer num) {
+        log.info("查询操作日志");
         if (num!=null && num>0){
             return sysLogMapper.queryAll(num);
         }else {

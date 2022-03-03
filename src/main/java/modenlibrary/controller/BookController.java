@@ -54,7 +54,6 @@ import java.util.Map;
 @CrossOrigin(originPatterns = "*",maxAge = 3600)
 @Slf4j
 public class BookController {
-    private Logger logger = LoggerFactory.getLogger(BookController.class);
 
     @Autowired
     private BookService bookService;
@@ -62,8 +61,6 @@ public class BookController {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private LendListService lendListService;
 
     /**
      * 查询所有图书 可以附加条件查询
@@ -111,34 +108,30 @@ public class BookController {
         //判断用户是否存在
         User user = userService.selectByPrimaryKey(uid);
         if (user==null){
+            log.error("错误：用户【{}】不存在",uid);
             throw new BusinessException(ReturnCode.NOT_USER);
         }
         //判断状态
         if (StrUtil.isEmptyIfStr(status)){
+            log.error("错误：状态 【{}】错误",status);
             throw new BusinessException(ReturnCode.FORM_ERROR);
         }
         if (BookStatus.LENDING.getMsg().equals(status)){
             //借出
-            boolean ok = bookService.returnedBook(user, isbn,BookStatus.LENDING);
-            if (ok){
-                return Result.success(user);
-            }
+            bookService.returnedBook(user, isbn,BookStatus.LENDING);
+            return Result.success(user);
         }else if (BookStatus.RETURNED.getMsg().equals(status)){
             //归还
-            boolean ok = bookService.returnedBook(user, isbn,BookStatus.RETURNED);
-            if (ok){
-                return Result.success(user);
-            }
+            bookService.returnedBook(user, isbn,BookStatus.RETURNED);
+            return Result.success(user);
         }else if (BookStatus.OTHERS.getMsg().equals(status)){
 //            其他
-            boolean ok = bookService.returnedBook(user, isbn,BookStatus.OTHERS);
-            if (ok){
-                return Result.success(user);
-            }
+            bookService.returnedBook(user, isbn,BookStatus.OTHERS);
+            return Result.success(user);
         }else {
+            log.error("错误：没有该书本状态");
             throw new BusinessException(ReturnCode.FORM_ERROR);
         }
-        return Result.fail(ReturnCode.SYSTEM_ERROR);
     }
 
     /**
@@ -153,8 +146,8 @@ public class BookController {
     @ResponseBody
     @RequiresPermissions("addbook")
     public ResultVo add(Book book, MultipartFile file){
-        book = bookService.addBook(book,file);
-        return Result.success(book);
+        bookService.addBook(book,file);
+        return Result.success(ReturnCode.SUCCESS);
     }
 
     /**
@@ -169,8 +162,8 @@ public class BookController {
     @ResponseBody
     @RequiresPermissions("updatebook")
     public ResultVo update(Book book,MultipartFile file){
-        book = bookService.updateBook(book,file);
-        return Result.success(book);
+        bookService.updateBook(book,file);
+        return Result.success(ReturnCode.SUCCESS);
     }
 
     /**
@@ -187,12 +180,8 @@ public class BookController {
         if (isbn.length()!=10){
             return Result.fail(ReturnCode.BOOK_UNKNOWN);
         }
-        int ok = bookService.deleteByPrimaryKey(isbn);
-        if (ok==1){
-            return Result.success("删除成功");
-        }else {
-            return Result.fail(ReturnCode.SYSTEM_ERROR);
-        }
+        bookService.deleteByPrimaryKey(isbn);
+        return Result.success(ReturnCode.SUCCESS);
     }
 
 
